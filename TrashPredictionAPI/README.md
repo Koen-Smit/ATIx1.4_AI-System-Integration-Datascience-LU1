@@ -40,3 +40,6 @@ Deze handleiding helpt je stap voor stap met het installeren van FastAPI en het 
    ```
    py -m uvicorn main:app --reload
    ```
+Resultaat:
+![Resultaat Terminal](images/Terminal.png)
+![Resultaat Localhost](images/web-result)
