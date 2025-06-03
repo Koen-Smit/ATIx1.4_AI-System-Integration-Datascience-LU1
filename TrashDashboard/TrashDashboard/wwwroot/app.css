@@ -1,3 +1,93 @@
+
+/*======================================================================================================================================================================================================================*/
+/*ZELF TOEGEVOEGD:*/
+/*======================================================================================================================================================================================================================*/
+
+.container {
+    font-family: sans-serif;
+    margin: 0 auto;
+    padding: 0;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #ccc;
+    padding: 10px;
+}
+
+.menu-btn {
+    font-size: 20px;
+    background: none;
+    border: none;
+}
+
+.title {
+    flex-grow: 1;
+    text-align: center;
+    margin: 0;
+}
+
+.update-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.user-btn {
+    font-size: 18px;
+    background: none;
+    border: none;
+}
+
+.main-content {
+    display: flex;
+    padding: 20px;
+}
+
+.left-section {
+    width: 60%;
+    padding-right: 20px;
+}
+
+.right-section {
+    width: 40%;
+    background-color: #eee;
+    padding: 10px;
+}
+
+.map, .weather, .chart img {
+    width: 100%;
+    margin-bottom: 15px;
+    border: 1px solid #ccc;
+}
+
+.text-block {
+    margin-bottom: 20px;
+}
+
+.chart {
+    margin-bottom: 20px;
+}
+
+.button-group {
+    display: flex;
+    justify-content: space-between;
+}
+
+.button-group button {
+    flex: 1;
+    margin: 0 5px;
+    padding: 10px;
+    cursor: pointer;
+}
+
+
+/*======================================================================================================================================================================================================================*/
+/*VAN BLAZOR ZELF:*/
+/*======================================================================================================================================================================================================================*/
+
 html, body {
     font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
 }
