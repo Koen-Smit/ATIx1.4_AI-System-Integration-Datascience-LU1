@@ -42,4 +42,4 @@ Deze handleiding helpt je stap voor stap met het installeren van FastAPI en het 
    ```
 Resultaat:
 ![Resultaat Terminal](images/Terminal.png)
-![Resultaat Localhost](images/web-result)
+![Resultaat Localhost](images/web-result.png)
