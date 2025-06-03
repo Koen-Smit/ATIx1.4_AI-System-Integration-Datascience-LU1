@@ -28,7 +28,7 @@ Deze handleiding helpt je stap voor stap met het installeren van FastAPI en het 
       -m pip install fastapi uvicorn 
   ```
 ## ▶️ Stap 4: Start de server
-1. Open de TrashPredictionAPI in Visual Studio Code
+1. Open de TrashPredictionAPI folder in Visual Studio Code
 
 2. Open één terminal
 
@@ -36,7 +36,7 @@ Deze handleiding helpt je stap voor stap met het installeren van FastAPI en het 
    ```
    uvicorn main:app --reload
    ```
-   💡Werkt ditn iet? Probeer dan:
+   💡Werkt dit niet? Probeer dan:
    ```
    py -m uvicorn main:app --reload
    ```
