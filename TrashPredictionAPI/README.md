@@ -30,7 +30,7 @@ Deze handleiding helpt je stap voor stap met het installeren van FastAPI en het 
 ## ▶️ Stap 4: Start de server
 1. Open de TrashPredictionAPI folder in Visual Studio Code
 
-2. Open één terminal
+2. Open één terminal in Visual Studio Code
 
 3. Voer dit commando uit
    ```
