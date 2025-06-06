@@ -1,0 +1,48 @@
+﻿@page "/register"
+@rendermode InteractiveServer
+@inject NavigationManager Navigation
+
+<div style="height: 50vh; display: flex; justify-content: center; align-items: center;">
+    <div class="container" style="max-width: 400px;">
+
+        <h2><strong>Registreren</strong></h2>
+
+        <p></p>
+
+        <div class="form-floating mt-2">
+            <input @bind="email" class="form-control">
+            <label>Email address</label>
+        </div>
+
+        <div class="form-floating mt-2">
+            <input type="password" @bind="password" class="form-control">
+            <label>Wachtwoord</label>
+        </div>
+
+        <button type="button" class="btn btn-secondary mt-3" @onclick="Submit">Registreren</button>
+
+        <p></p>
+
+        <h5 style="color: white;">.</h5>
+    </div>
+</div>
+
+<h5>@email</h5>
+<h5>@password</h5>
+<h5>@conformation</h5>
+
+
+@code
+{
+    //Dit simuleert logica achter de inputvelden
+    private string? email;
+    private string? password;
+
+    private string? conformation = "";
+
+    private void Submit()
+    {
+        conformation = $"Bevesiging met: {email} + {password}";
+        Navigation.NavigateTo("/login");
+    }
+}
