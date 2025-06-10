@@ -466,3 +466,4 @@ FodyWeavers.xsd
 # JetBrains Rider
 *.sln.iml
 
+/MonitoringAPI/MonitoringAPI/Migrations
