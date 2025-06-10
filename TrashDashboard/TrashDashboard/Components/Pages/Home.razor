@@ -10,7 +10,7 @@
         <div class="col-6 custom-left d-flex flex-column p-4">
             <div class="d-flex justify-content-end">
                 <button class="btn color-light btn-light "
-                        onclick="alert('Op dit dashboard krijg je inzicht in zwerfafvalverwachtingen op basis van locatie en omgevingsfactoren. Voer een postcode, datum, temperatuur en tijd in. Klik op ‘Toon voorspelling’ om te zien hoeveel zwerfafval er verwacht wordt. De grafiek toont het verwachte aantal stuks afval per tijdstip van de dag. Aan de rechterkant zie je een weeroverzicht en een kaart van de stad met locaties waar voorspellingen relevant zijn.')">
+                onclick="alert('Op dit dashboard krijg je inzicht in zwerfafvalverwachtingen op basis van locatie en omgevingsfactoren. Voer een postcode, datum, temperatuur en tijd in. Klik op ‘Toon voorspelling’ om te zien hoeveel zwerfafval er verwacht wordt. De grafiek toont het verwachte aantal stuks afval per tijdstip van de dag. Aan de rechterkant zie je een weeroverzicht en een kaart van de stad met locaties waar voorspellingen relevant zijn.')">
                     Info
                 </button>
             </div>
@@ -43,20 +43,25 @@
                 <button class="btn color-light btn-light px-4" @onclick="ShowVoorspelling">Toon voorspelling</button>
             </div>
             <div class="col-6 bg-light d-flex align-items-center justify-content-center"></div>
-                <canvas id="afvalChart" width="300" height="200"></canvas>
-                <h4 class="mt-5 pt-2 pb-2 color-light rounded text-center btn-light">Ophaalprioriteit: gemiddeld</h4>
-            </div>
+            <canvas id="afvalChart" width="300" height="200"></canvas>
+            <h4 class="mt-5 pt-2 pb-2 color-light rounded text-center btn-light">Ophaalprioriteit: gemiddeld</h4>
+        </div>
 
-     
+
 
         <!-- Rechterkant -->
         <div class="col-6 custom-right d-flex flex-column justify-content-center align-items-center">
             <h3 class="color-light">Weeroverzicht</h3>
             <canvas id="weerChart" width="300" height="200"></canvas>
             <h3 class="color-light mt-5">Kaart van Breda</h3>
-            <img src="images/breda-placeholder.jpg" alt="kaart" width="500px" height="500px" >
+            <div id="map"></div>
+
+            @* <div id="mapContainer" style="width: 300px; height: 300px;"> *@
+            @*     <LeafletMap Map="_map" /> *@
+            @* </div>         *@
+            <RealTimeMap height="30vh" width="40vw" Parameters="@parameters"></RealTimeMap>
         </div>
-        </div>
+    </div>
 
 </div>
 
@@ -82,6 +87,16 @@
             await JS.InvokeVoidAsync("renderWeerChart", temperatuurData, neerslagData);
         }
     }
+
+    RealTimeMap.LoadParameters parameters = new RealTimeMap.LoadParameters()
+        {
+            location = new RealTimeMap.Location()
+            {
+                latitude = 51.587533,
+                longitude = 4.775072,
+            },
+            zoomLevel = 12
+        };
 
 private async Task ShowVoorspelling()
 {
