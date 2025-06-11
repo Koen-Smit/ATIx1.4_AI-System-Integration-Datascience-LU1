@@ -17,6 +17,10 @@
     padding: 10px;
 }
 
+.color-light{
+    color:#51565b !important;
+}
+
 .menu-btn {
     font-size: 20px;
     background: none;
@@ -44,6 +48,16 @@
 .main-content {
     display: flex;
     padding: 20px;
+}
+
+.custom-left {
+    background-color: #6378a1 !important;
+    color: white !important; 
+}
+
+.custom-right {
+    background-color: #f0f0f0;
+    color: black;
 }
 
 .left-section {
@@ -82,6 +96,7 @@
     padding: 10px;
     cursor: pointer;
 }
+
 
 
 /*======================================================================================================================================================================================================================*/
