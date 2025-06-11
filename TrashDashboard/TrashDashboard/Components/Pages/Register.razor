@@ -1,0 +1,53 @@
+﻿@page "/register"
+@rendermode InteractiveServer
+@inject NavigationManager Navigation
+
+<div style="height: 100vh; display: flex; justify-content: center; align-items: flex-start; padding-top: 10vh;">
+    <div class="container" style="max-width: 400px;">
+        <h2><strong>Registreren</strong></h2>
+
+        <div class="form-floating mt-2">
+            <input @bind="email" class="form-control">
+            <label>Email address</label>
+        </div>
+
+        <div class="form-floating mt-2">
+            <input @bind="username" class="form-control">
+            <label>Gebruikersnaam</label>
+        </div>
+
+        <div class="form-floating mt-2">
+            <input type="password" @bind="password" class="form-control">
+            <label>Wachtwoord</label>
+        </div>
+
+        <div class="form-floating mt-2">
+            <input type="password" @bind="confirmpassword" class="form-control">
+            <label>Herhaal wachtwoord</label>
+        </div>
+
+        <button type="button" class="btn btn-secondary mt-3" @onclick="Submit">Registreren</button>
+    </div>
+</div>
+
+@code
+{
+    private string? email;
+    private string? username;
+    private string? password;
+    private string? confirmpassword;
+    private string? conformationMessage = "";
+
+    private void Submit()
+    {
+        if ((password == confirmpassword) && (password != null))
+        {
+            conformationMessage = $"Bevesiging met: {email} + {password}";
+            Navigation.NavigateTo("/login");
+        }
+        else
+        {
+            conformationMessage = $"Kan niet bevestigd worden: {password} is niet gelijk aan {confirmpassword}";
+        }
+    }
+}
