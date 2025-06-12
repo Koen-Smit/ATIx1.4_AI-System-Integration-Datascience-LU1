@@ -22,6 +22,7 @@ public class Program
         builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
         builder.Services.AddScoped<ITrashRepository, TrashRepository>();
         builder.Services.AddScoped<IAccountRepository, AccountRepository>();
+        builder.Services.AddScoped<ICameraRepository, CameraRepository>();
         builder.Services.AddSingleton<JwtTokenService>();
 
         builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
