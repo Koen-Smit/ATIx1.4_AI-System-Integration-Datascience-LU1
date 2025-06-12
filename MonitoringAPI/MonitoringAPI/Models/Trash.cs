@@ -10,7 +10,7 @@ public class Trash
     [Required]
     public DateTime DateCollected { get; set; }
 
-    [Required]
+    //[Required]
     [MaxLength(50)]
     public string DagCategorie { get; set; } = string.Empty;
 

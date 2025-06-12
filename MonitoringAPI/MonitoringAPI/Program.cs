@@ -1,10 +1,8 @@
 
 using Microsoft.EntityFrameworkCore;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.OpenApi.Models;
 
 public class Program
@@ -77,6 +75,7 @@ public class Program
     });
         });
 
+        builder.Services.AddHttpClient<IHolidayService, HolidayService>();
 
         var app = builder.Build();
 

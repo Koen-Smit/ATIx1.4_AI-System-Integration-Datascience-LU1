@@ -18,9 +18,10 @@ public class TrashController : ControllerBase
         [FromQuery] DateTime? date = null,
         [FromQuery] DateTime? after = null,
         [FromQuery] DateTime? before = null,
-        [FromQuery] string? type = null)
+        [FromQuery] string? type = null,
+        [FromQuery] string? dagCategorie = null)
     {
-        var results = await _repo.GetFilteredAsync(date, after, before, type);
+        var results = await _repo.GetFilteredAsync(date, after, before, type, dagCategorie);
         return Ok(results);
     }
 
@@ -34,13 +35,38 @@ public class TrashController : ControllerBase
 
     [Authorize]
     [HttpPost]
-    public async Task<IActionResult> Create([FromBody] Trash trash)
+    public async Task<IActionResult> Create([FromBody] CreateTrashDTO dto)
     {
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
 
-        var created = await _repo.AddAsync(trash);
-        return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
-    }
+        var trash = new Trash
+        {
+            DateCollected = dto.DateCollected,
+            TypeAfval = dto.TypeAfval,
+            WindRichting = dto.WindRichting,
+            Temperatuur = dto.Temperatuur,
+            WeerOmschrijving = dto.WeerOmschrijving,
+            Confidence = dto.Confidence,
+            CameraId = dto.CameraId
+        };
 
+        var created = await _repo.AddAsync(trash);
+
+        var result = new TrashDTO
+        {
+            Id = created.Id,
+            DateCollected = created.DateCollected,
+            DagCategorie = created.DagCategorie,
+            TypeAfval = created.TypeAfval,
+            WindRichting = created.WindRichting,
+            Temperatuur = created.Temperatuur,
+            WeerOmschrijving = created.WeerOmschrijving,
+            Confidence = created.Confidence,
+            CameraId = created.CameraId
+        };
+
+        return CreatedAtAction(nameof(GetById), new { id = result.Id }, result);
+    }
 }
+
