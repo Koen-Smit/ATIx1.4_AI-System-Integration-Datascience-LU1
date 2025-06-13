@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 
@@ -6,45 +7,62 @@ using System.Security.Claims;
 [Route("account")]
 public class AccountController : ControllerBase
 {
-    private readonly IAccountRepository _accountRepo;
-    private readonly JwtTokenService _tokenService;
+    private readonly UserManager<ApplicationUser> _userManager;
+    private readonly SignInManager<ApplicationUser> _signInManager;
+    private readonly JwtTokenGenerator _jwtTokenGenerator;
 
-    public AccountController(IAccountRepository accountRepo, JwtTokenService tokenService)
+    public AccountController(
+        UserManager<ApplicationUser> userManager,
+        SignInManager<ApplicationUser> signInManager,
+        JwtTokenGenerator jwtTokenGenerator)
     {
-        _accountRepo = accountRepo;
-        _tokenService = tokenService;
+        _userManager = userManager;
+        _signInManager = signInManager;
+        _jwtTokenGenerator = jwtTokenGenerator;
     }
 
     [HttpPost("register")]
     public async Task<IActionResult> Register(RegisterDto dto)
     {
-        var existing = await _accountRepo.GetByEmailAsync(dto.Email);
+        var existing = await _userManager.FindByEmailAsync(dto.Email);
         if (existing != null)
             return BadRequest("Email already in use");
 
-        var user = new User { Email = dto.Email, Username = dto.Username };
-        var registered = await _accountRepo.RegisterAsync(user, dto.Password);
-        return Ok(new { registered.Id, registered.Email, registered.Username });
+        var user = new ApplicationUser
+        {
+            Email = dto.Email,
+            UserName = dto.Username
+        };
+
+        var result = await _userManager.CreateAsync(user, dto.Password);
+
+        if (!result.Succeeded)
+            return BadRequest(result.Errors);
+
+        return Ok(new { user.Id, user.Email, user.UserName });
     }
 
     [HttpPost("login")]
     public async Task<IActionResult> Login(LoginDto dto)
     {
-        if (User.Identity?.IsAuthenticated == true)
-        {
-            return BadRequest("Already logged in.");
-        }
-
-        var user = await _accountRepo.GetByEmailAsync(dto.Email);
+        var user = await _userManager.FindByEmailAsync(dto.Email);
         if (user == null)
             return Unauthorized("Invalid credentials");
 
-        bool validPassword = await _accountRepo.CheckPasswordAsync(user, dto.Password);
-        if (!validPassword)
+        var result = await _signInManager.CheckPasswordSignInAsync(user, dto.Password, false);
+
+        if (!result.Succeeded)
             return Unauthorized("Invalid credentials");
 
-        var token = _tokenService.GenerateToken(user);
-        return Ok(new { token });
+        // Generate token
+        var token = _jwtTokenGenerator.GenerateToken(user.UserName);
+
+        return Ok(new
+        {
+            Token = token,
+            Username = user.UserName,
+            Email = user.Email
+        });
     }
 
     [HttpGet("username")]
@@ -61,11 +79,24 @@ public class AccountController : ControllerBase
         return Ok(new { Username = username });
     }
 
+    [HttpGet("test-auth")]
+    [Authorize]
+    public IActionResult TestAuth()
+    {
+        var claims = User.Claims.Select(c => new { c.Type, c.Value }).ToList();
+        return Ok(new
+        {
+            IsAuthenticated = User.Identity?.IsAuthenticated,
+            Claims = claims
+        });
+    }
+
 
     [HttpPost("logout")]
     [Authorize]
-    public IActionResult Logout()
+    public async Task<IActionResult> Logout()
     {
+        await _signInManager.SignOutAsync();
         return Ok(new { message = "Logged out successfully." });
     }
 }

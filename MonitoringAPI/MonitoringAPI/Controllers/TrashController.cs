@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
+[Authorize]
 [ApiController]
 [Route("trash")]
 public class TrashController : ControllerBase
@@ -12,7 +13,6 @@ public class TrashController : ControllerBase
         _repo = repo;
     }
 
-    [Authorize]
     [HttpGet]
     public async Task<IActionResult> GetFiltered(
         [FromQuery] DateTime? date = null,
@@ -25,7 +25,6 @@ public class TrashController : ControllerBase
         return Ok(results);
     }
 
-    [Authorize]
     [HttpGet("{id}")]
     public async Task<IActionResult> GetById(int id)
     {
@@ -33,7 +32,6 @@ public class TrashController : ControllerBase
         return result == null ? NotFound() : Ok(result);
     }
 
-    [Authorize]
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] CreateTrashDTO dto)
     {

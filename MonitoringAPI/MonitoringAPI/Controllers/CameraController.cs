@@ -1,8 +1,9 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
+[Authorize]
 [ApiController]
-[Route("camera")]
+[Route("[controller]")]
 public class CameraController : ControllerBase
 {
     private readonly ICameraRepository _repo;
@@ -12,12 +13,11 @@ public class CameraController : ControllerBase
         _repo = repo;
     }
 
-    [Authorize]
     [HttpGet]
     public async Task<IActionResult> GetAll() =>
         Ok(await _repo.GetAllAsync());
 
-    [Authorize]
+
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] Camera camera)
     {
@@ -28,7 +28,7 @@ public class CameraController : ControllerBase
         return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
     }
 
-    [Authorize]
+
     [HttpGet("{id}")]
     public async Task<IActionResult> GetById(int id)
     {
@@ -36,7 +36,6 @@ public class CameraController : ControllerBase
         return camera == null ? NotFound() : Ok(camera);
     }
 
-    [Authorize]
     [HttpDelete("{id}")]
     public async Task<IActionResult> Delete(int id)
     {

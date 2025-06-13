@@ -1,10 +1,20 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity;
 
-public class AppDbContext : DbContext
+public class AppDbContext : IdentityDbContext<
+    ApplicationUser,
+    ApplicationRole,
+    int,
+    IdentityUserClaim<int>,
+    ApplicationUserRole,
+    IdentityUserLogin<int>,
+    IdentityRoleClaim<int>,
+    IdentityUserToken<int>>
 {
     public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 
-    public DbSet<User> Users { get; set; }
+    public DbSet<ApplicationUser> ApplicationUsers { get; set; }
     public DbSet<Trash> Trash { get; set; }
     public DbSet<Camera> Cameras { get; set; }
 
@@ -12,11 +22,31 @@ public class AppDbContext : DbContext
     {
         base.OnModelCreating(modelBuilder);
 
+        modelBuilder.Entity<ApplicationUserRole>()
+        .HasKey(ur => new { ur.UserId, ur.RoleId });
+
+        modelBuilder.Entity<ApplicationUserRole>()
+            .HasOne(ur => ur.User)
+            .WithMany(u => u.UserRoles)
+            .HasForeignKey(ur => ur.UserId);
+
+        modelBuilder.Entity<ApplicationUserRole>()
+            .HasOne(ur => ur.Role)
+            .WithMany(r => r.UserRoles)
+            .HasForeignKey(ur => ur.RoleId);
+
+        modelBuilder.Entity<Camera>()
+            .HasKey(c => c.Id);
+
         modelBuilder.Entity<Trash>()
             .HasOne(t => t.Camera)
             .WithMany(c => c.TrashRecords)
             .HasForeignKey(t => t.CameraId)
             .OnDelete(DeleteBehavior.Cascade);
+
+
+
+
 
         modelBuilder.Entity<Camera>().HasData(
             new Camera
@@ -51,16 +81,6 @@ public class AppDbContext : DbContext
                 Longitude = 4.4680,
                 Postcode = "3011AD"
             }
-        );
-
-        modelBuilder.Entity<User>().HasData(
-            new User
-            {
-                Id = 1,
-                Email = "admin@example.com",
-                Username = "admin",
-                PasswordHash = "$2a$11$GpJBsgSFzsGoZTP3.VmLLuiKNzh335fAM7HRx7BLzawZbzVFuQI9e"
-            } // Test account voor development, word verwijderd zodra de API live gaat/echte data wordt gebruikt
         );
 
         modelBuilder.Entity<Trash>().HasData(

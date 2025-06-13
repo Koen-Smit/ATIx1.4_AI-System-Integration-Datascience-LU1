@@ -32,7 +32,7 @@ public class TrashRepository : Repository<Trash>, ITrashRepository
         return await query.ToListAsync();
     }
 
-    public async Task<Trash> AddAsync(Trash trash)
+    public new async Task<Trash> AddAsync(Trash trash)
     {
         if (!string.IsNullOrWhiteSpace(trash.DagCategorie))
             throw new ArgumentException("DagCategorie is determined automatically.");

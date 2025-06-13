@@ -4,7 +4,7 @@ public class CameraRepository : Repository<Camera>, ICameraRepository
 {
     public CameraRepository(AppDbContext context) : base(context) { }
 
-    public async Task<Camera> AddAsync(Camera camera)
+    public new async Task<Camera> AddAsync(Camera camera)
     {
         await _dbSet.AddAsync(camera);
         await _context.SaveChangesAsync();

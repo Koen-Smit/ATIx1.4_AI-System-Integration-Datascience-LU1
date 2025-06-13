@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 
 public class Camera
 {
@@ -22,5 +23,7 @@ public class Camera
     [MaxLength(10)]
     public string Postcode { get; set; } = string.Empty;
 
+
+    [JsonIgnore]
     public ICollection<Trash> TrashRecords { get; set; } = new List<Trash>();
 }

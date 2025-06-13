@@ -1,17 +1,10 @@
 ﻿using System.Net.Http;
 using System.Text.Json;
 
-public class HolidayService : IHolidayService
+public class HolidayService(HttpClient httpClient, IConfiguration config) : IHolidayService
 {
-    private readonly HttpClient _httpClient;
-    private readonly string _apiKey;
-
-    public HolidayService(HttpClient httpClient, IConfiguration config)
-    {
-        _httpClient = httpClient;
-        _apiKey = config["AbstractApi:ApiKey"];
-    }
-
+    private readonly HttpClient _httpClient = httpClient;
+    private readonly string? _apiKey = config["AbstractApi:ApiKey"];
 
     public async Task<bool> IsHolidayAsync(DateTime date, string countryCode)
     {
