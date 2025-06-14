@@ -22,9 +22,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: "Check if AZURE_WEBAPP_NAME exists"
-        if: ${{ secrets.AZURE_WEBAPP_NAME == '' }}
-        run: echo "::error::Secret AZURE_WEBAPP_NAME is missing" && exit 1
-        
+        run: |
+          if [ -z "${{ secrets.AZURE_WEBAPP_NAME }}" ]; then
+            echo "::error::Secret AZURE_WEBAPP_NAME is missing"
+            exit 1
+          fi
+
       - name: "Check if AZURE_WEBAPP_PUBLISH_PASSWORD exists"
         if: ${{ secrets.AZURE_WEBAPP_PUBLISH_PASSWORD == '' }}
         run: echo "::error::Secret AZURE_WEBAPP_PUBLISH_PASSWORD is missing" && exit 1
