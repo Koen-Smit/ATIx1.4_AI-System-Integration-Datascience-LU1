@@ -27,18 +27,28 @@ jobs:
             echo "::error::Secret AZURE_WEBAPP_NAME is missing"
             exit 1
           fi
-
+  
       - name: "Check if AZURE_WEBAPP_PUBLISH_PASSWORD exists"
-        if: ${{ secrets.AZURE_WEBAPP_PUBLISH_PASSWORD == '' }}
-        run: echo "::error::Secret AZURE_WEBAPP_PUBLISH_PASSWORD is missing" && exit 1
-        
+        run: |
+          if [ -z "${{ secrets.AZURE_WEBAPP_PUBLISH_PASSWORD }}" ]; then
+            echo "::error::Secret AZURE_WEBAPP_PUBLISH_PASSWORD is missing"
+            exit 1
+          fi
+  
       - name: "Check if AZURE_WEBAPP_PUBLISH_USERNAME exists"
-        if: ${{ secrets.AZURE_WEBAPP_PUBLISH_USERNAME == '' }}
-        run: echo "::error::Secret AZURE_WEBAPP_PUBLISH_USERNAME is missing" && exit 1
-        
+        run: |
+          if [ -z "${{ secrets.AZURE_WEBAPP_PUBLISH_USERNAME }}" ]; then
+            echo "::error::Secret AZURE_WEBAPP_PUBLISH_USERNAME is missing"
+            exit 1
+          fi
+  
       - name: "Check if WEBAPI_PROJECT_NAME exists"
-        if: ${{ secrets.WEBAPI_PROJECT_NAME == '' }}
-        run: echo "::error::Secret WEBAPI_PROJECT_NAME is missing" && exit 1
+        run: |
+          if [ -z "${{ secrets.WEBAPI_PROJECT_NAME }}" ]; then
+            echo "::error::Secret WEBAPI_PROJECT_NAME is missing"
+            exit 1
+          fi
+
 
   build:
     runs-on: ubuntu-latest
