@@ -5,9 +5,9 @@ env:
   DOTNET_CORE_VERSION: 9.0.x
   PUBLISH_DIRECTORY: "./out/publish"
   PROJECT_ROOT: "ATIx1.4_AI-System-Integration-Datascience-LU1/MonitoringAPI"
-  SOLUTION_PATH: "${{env.PROJECT_ROOT}}/MonitoringAPI.sln"
-  PROJECT_PATH: "${{env.PROJECT_ROOT}}/MonitoringAPI/MonitoringAPI.csproj"
-  TEST_PROJECT_PATH: "${{env.PROJECT_ROOT}}/MonitoringAPI.Tests/MonitoringAPI.Tests.csproj"
+  SOLUTION_PATH: "ATIx1.4_AI-System-Integration-Datascience-LU1/MonitoringAPI/MonitoringAPI.sln"
+  PROJECT_PATH: "ATIx1.4_AI-System-Integration-Datascience-LU1/MonitoringAPI/MonitoringAPI/MonitoringAPI.csproj"
+  TEST_PROJECT_PATH: "ATIx1.4_AI-System-Integration-Datascience-LU1/MonitoringAPI/MonitoringAPI.Tests/MonitoringAPI.Tests.csproj"
 
 on:
   push:
@@ -45,31 +45,31 @@ jobs:
       
       - name: Verify directory structure
         run: |
-          echo "Project root: ${{env.PROJECT_ROOT}}"
-          ls -R ${{env.PROJECT_ROOT}}
+          echo "Project root: $PROJECT_ROOT"
+          ls -R $PROJECT_ROOT
       
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: ${{env.DOTNET_CORE_VERSION}}
+          dotnet-version: ${{ env.DOTNET_CORE_VERSION }}
 
       - name: Restore dependencies
-        run: dotnet restore ${{env.SOLUTION_PATH}}
+        run: dotnet restore $SOLUTION_PATH
         
       - name: Build
-        run: dotnet build ${{env.SOLUTION_PATH}} --no-restore
+        run: dotnet build $SOLUTION_PATH --no-restore
       
       - name: Test
-        run: dotnet test ${{env.TEST_PROJECT_PATH}} --no-build --verbosity normal
+        run: dotnet test $TEST_PROJECT_PATH --no-build --verbosity normal
       
       - name: Publish
-        run: dotnet publish ${{env.PROJECT_PATH}} --output ${{env.PUBLISH_DIRECTORY}} --configuration Release
+        run: dotnet publish $PROJECT_PATH --output $PUBLISH_DIRECTORY --configuration Release
       
       - name: Publish Artifacts
         uses: actions/upload-artifact@v4
         with:
           name: ${{ env.ARTIFACT_NAME }}
-          path: ${{ env.PUBLISH_DIRECTORY}}
+          path: ${{ env.PUBLISH_DIRECTORY }}
 
   deploy:
     runs-on: ubuntu-latest
@@ -79,12 +79,12 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: ${{ env.ARTIFACT_NAME }}
-          path: ${{ env.PUBLISH_DIRECTORY}}
+          path: ${{ env.PUBLISH_DIRECTORY }}
 
       - name: Deploy to Azure App Service
         uses: azure/webapps-deploy@v3
         with: 
           app-name: ${{ secrets.AZURE_WEBAPP_NAME }}
           publish-profile: ${{ secrets.AZURE_PUBLISH_PROFILE }}
-          package: ${{ env.PUBLISH_DIRECTORY}}
+          package: ${{ env.PUBLISH_DIRECTORY }}
           clean: true
