@@ -39,6 +39,8 @@ public class AccountController : ControllerBase
         if (!result.Succeeded)
             return BadRequest(result.Errors);
 
+        await _userManager.AddToRoleAsync(user, "User");
+
         return Ok(new { user.Id, user.Email, user.UserName });
     }
 
@@ -54,19 +56,22 @@ public class AccountController : ControllerBase
         if (!result.Succeeded)
             return Unauthorized("Invalid credentials");
 
-        // Generate token
-        var token = _jwtTokenGenerator.GenerateToken(user.UserName);
+        var roles = await _userManager.GetRolesAsync(user);
+
+        // Genereer token met rollen
+        var token = _jwtTokenGenerator.GenerateToken(user.UserName, roles);
 
         return Ok(new
         {
             Token = token,
             Username = user.UserName,
-            Email = user.Email
+            Email = user.Email,
+            Roles = roles
         });
     }
 
     [HttpGet("username")]
-    [Authorize]
+    [Authorize(Policy = "User")]
     public IActionResult GetUsername()
     {
         var username = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Name)?.Value;
@@ -80,7 +85,7 @@ public class AccountController : ControllerBase
     }
 
     [HttpGet("test-auth")]
-    [Authorize]
+    [Authorize(Policy = "Admin")]
     public IActionResult TestAuth()
     {
         var claims = User.Claims.Select(c => new { c.Type, c.Value }).ToList();
@@ -93,7 +98,7 @@ public class AccountController : ControllerBase
 
 
     [HttpPost("logout")]
-    [Authorize]
+    [Authorize(Policy = "User")]
     public async Task<IActionResult> Logout()
     {
         await _signInManager.SignOutAsync();

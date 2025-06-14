@@ -1,9 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.13.35828.75 d17.13
+VisualStudioVersion = 17.13.35828.75
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MonitoringAPI", "MonitoringAPI\MonitoringAPI.csproj", "{78B950D0-32C9-4648-B064-089BC0AD655B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MonitoringAPI.Tests", "MonitoringAPI.Tests\MonitoringAPI.Tests.csproj", "{9FC9D8DB-49A5-42E5-83E5-8C066EBEDB7B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +17,10 @@ Global
 		{78B950D0-32C9-4648-B064-089BC0AD655B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{78B950D0-32C9-4648-B064-089BC0AD655B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{78B950D0-32C9-4648-B064-089BC0AD655B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9FC9D8DB-49A5-42E5-83E5-8C066EBEDB7B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9FC9D8DB-49A5-42E5-83E5-8C066EBEDB7B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9FC9D8DB-49A5-42E5-83E5-8C066EBEDB7B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9FC9D8DB-49A5-42E5-83E5-8C066EBEDB7B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

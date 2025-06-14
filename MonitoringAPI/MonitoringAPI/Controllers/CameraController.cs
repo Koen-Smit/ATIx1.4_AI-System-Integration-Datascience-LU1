@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-[Authorize]
+[Authorize(Policy = "User")]
 [ApiController]
 [Route("[controller]")]
 public class CameraController : ControllerBase

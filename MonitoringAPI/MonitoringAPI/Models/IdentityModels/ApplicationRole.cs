@@ -2,5 +2,8 @@
 
 public class ApplicationRole : IdentityRole<int>
 {
-    public virtual ICollection<ApplicationUserRole>? UserRoles { get; set; }
+    public ApplicationRole() : base() { }
+    public ApplicationRole(string roleName) : base(roleName) { }
+
+    public virtual ICollection<ApplicationUserRole> UserRoles { get; set; }
 }
