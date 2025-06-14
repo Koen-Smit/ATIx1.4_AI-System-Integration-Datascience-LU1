@@ -60,11 +60,19 @@
             @*     <LeafletMap Map="_map" /> *@
             @* </div>         *@
             <div class="mb-5">
-                <RealTimeMap height="50vh" width="40vw" Parameters="@parameters"></RealTimeMap>
+                <RealTimeMap @ref="_map" height="50vh" width="40vw" Parameters="@parameters" />
+                @if(trashList == null)
+                {
+                    <p>nothing</p>
+                }
+                else
+                {
+                @trashList.Count
+                }
             </div>
         </div>
     </div>
-
+    @* OnAfterMapLoaded="MapLoaded(51.591737, 4.779559, 'camera1')" *@
 </div>
 
 
@@ -88,25 +96,54 @@
             await JS.InvokeVoidAsync("renderAfvalChart", afvalPerUur);
             await JS.InvokeVoidAsync("renderWeerChart", temperatuurData, neerslagData);
         }
+
     }
 
-    RealTimeMap.LoadParameters parameters = new RealTimeMap.LoadParameters()
+
+    private List<Models.Trash> trashList;
+
+    protected override async Task OnInitializedAsync()
+    {
+        trashList = await ApiClient.GetAllTrash();
+    }
+    private RealTimeMap _map;
+
+    private RealTimeMap.LoadParameters parameters = new RealTimeMap.LoadParameters
         {
-            location = new RealTimeMap.Location()
+            location = new RealTimeMap.Location
             {
                 latitude = 51.587533,
                 longitude = 4.775072,
             },
-            zoomLevel = 12
+            zoomLevel = 2
         };
 
-private async Task ShowVoorspelling()
-{
-    for (int i = 0; i < afvalPerUur.Length; i++)
+    
+
+    private async Task MapLoaded(float latitude, float longitude, string name)
     {
-        afvalPerUur[i] = random.Next(0, 21);
+        var point = new RealTimeMap.StreamPoint
+            {
+                guid = Guid.NewGuid(),
+                timestamp = DateTime.Now,
+                latitude = latitude,
+                longitude = longitude,
+                type = name
+            };
+
+        await _map.Geometric.Points.add(point);
     }
 
-    await JS.InvokeVoidAsync("renderAfvalChart", afvalPerUur);
-}
+
+
+
+    private async Task ShowVoorspelling()
+    {
+        for (int i = 0; i < afvalPerUur.Length; i++)
+        {
+            afvalPerUur[i] = random.Next(0, 21);
+        }
+
+        await JS.InvokeVoidAsync("renderAfvalChart", afvalPerUur);
+    }
 }
