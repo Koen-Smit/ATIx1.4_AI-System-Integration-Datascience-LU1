@@ -21,33 +21,41 @@ jobs:
   check:
     runs-on: ubuntu-latest
     steps:
+      - name: Export secrets as environment variables
+        run: |
+          echo "AZURE_WEBAPP_NAME=${{ secrets.AZURE_WEBAPP_NAME }}" >> $GITHUB_ENV
+          echo "AZURE_WEBAPP_PUBLISH_PASSWORD=${{ secrets.AZURE_WEBAPP_PUBLISH_PASSWORD }}" >> $GITHUB_ENV
+          echo "AZURE_WEBAPP_PUBLISH_USERNAME=${{ secrets.AZURE_WEBAPP_PUBLISH_USERNAME }}" >> $GITHUB_ENV
+          echo "WEBAPI_PROJECT_NAME=${{ secrets.WEBAPI_PROJECT_NAME }}" >> $GITHUB_ENV
+  
       - name: "Check if AZURE_WEBAPP_NAME exists"
         run: |
-          if [ -z "${{ secrets.AZURE_WEBAPP_NAME }}" ]; then
+          if [ -z "$AZURE_WEBAPP_NAME" ]; then
             echo "::error::Secret AZURE_WEBAPP_NAME is missing"
             exit 1
           fi
   
       - name: "Check if AZURE_WEBAPP_PUBLISH_PASSWORD exists"
         run: |
-          if [ -z "${{ secrets.AZURE_WEBAPP_PUBLISH_PASSWORD }}" ]; then
+          if [ -z "$AZURE_WEBAPP_PUBLISH_PASSWORD" ]; then
             echo "::error::Secret AZURE_WEBAPP_PUBLISH_PASSWORD is missing"
             exit 1
           fi
   
       - name: "Check if AZURE_WEBAPP_PUBLISH_USERNAME exists"
         run: |
-          if [ -z "${{ secrets.AZURE_WEBAPP_PUBLISH_USERNAME }}" ]; then
+          if [ -z "$AZURE_WEBAPP_PUBLISH_USERNAME" ]; then
             echo "::error::Secret AZURE_WEBAPP_PUBLISH_USERNAME is missing"
             exit 1
           fi
   
       - name: "Check if WEBAPI_PROJECT_NAME exists"
         run: |
-          if [ -z "${{ secrets.WEBAPI_PROJECT_NAME }}" ]; then
+          if [ -z "$WEBAPI_PROJECT_NAME" ]; then
             echo "::error::Secret WEBAPI_PROJECT_NAME is missing"
             exit 1
           fi
+
 
 
   build:
