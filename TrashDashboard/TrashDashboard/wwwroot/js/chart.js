@@ -1,4 +1,4 @@
-window.renderAfvalChart = (data) => {
+window.renderAfvalChart = (data, labels) => {
     try {
         const ctx = document.getElementById('afvalChart')?.getContext('2d');
         if (!ctx) {
@@ -11,44 +11,75 @@ window.renderAfvalChart = (data) => {
         }
 
         window.afvalChartInstance = new Chart(ctx, {
-            type: 'line',
+            type: 'bar',
             data: {
-                labels: [
-                    "06:00", "07:00", "08:00", "09:00", "10:00", "11:00",
-                    "12:00", "13:00", "14:00", "15:00", "16:00", "17:00", "18:00"
-                ],
+                labels: labels,
                 datasets: [{
-                    label: 'Afval gedetecteerd per uur',
+                    label: 'Voorspeld aantal stuks afval',
                     data: data,
-                    borderColor: 'rgb(233, 233, 233)',
-                    fill: false,
-                    tension: 0
+                    backgroundColor: 'rgba(75, 192, 192, 0.7)',
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    borderWidth: 1
                 }]
             },
             options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                aspectRatio: 2,
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top',
+                        labels: {
+                            color: 'black',
+                            boxWidth: 12
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function (context) {
+                                return `Voorspeld afval: ${context.raw} stuks`;
+                            }
+                        }
+                    }
+                },
                 scales: {
                     y: {
                         beginAtZero: true,
                         title: {
                             display: true,
-                            text: 'Aantal afvalmeldingen',
-                            color: 'white'
+                            text: 'Aantal stuks afval',
+                            color: 'black'
                         },
                         ticks: {
-                            color: 'white'
+                            color: 'black',
+                            stepSize: 1,
+                            precision: 0
+                        },
+                        grid: {
+                            color: 'rgba(0, 0, 0, 0.1)'
                         }
                     },
                     x: {
+                        title: {
+                            display: true,
+                            text: 'Datum',
+                            color: 'black'
+                        },
                         ticks: {
-                            color: 'white'
+                            color: 'black'
+                        },
+                        grid: {
+                            display: false
                         }
                     }
                 },
-                plugins: {
-                    legend: {
-                        labels: {
-                            color: 'white'
-                        }
+                layout: {
+                    padding: {
+                        top: 10,
+                        right: 10,
+                        bottom: 10,
+                        left: 10
                     }
                 }
             }
@@ -60,7 +91,7 @@ window.renderAfvalChart = (data) => {
     }
 };
 
-window.renderWeerChart = (temperatuurData, neerslagData) => {
+window.renderWeerChart = (temperatuurData, weerOmschrijvingen, labels) => {
     try {
         const ctx = document.getElementById('weerChart')?.getContext('2d');
         if (!ctx) {
@@ -72,38 +103,61 @@ window.renderWeerChart = (temperatuurData, neerslagData) => {
             window.weerChartInstance.destroy();
         }
 
-        const labels = [
-            "02/06/2025", "03/06/2025", "04/06/2025", "05/06/2025",
-            "06/06/2025", "07/06/2025", "08/06/2025", "09/06/2025"
-        ];
+        const weatherTypes = {
+            'Zonnig': 'rgba(255, 215, 0, 0.7)',
+            'Licht bewolkt': 'rgba(169, 169, 169, 0.7)',
+            'Bewolkt': 'rgba(105, 105, 105, 0.7)',
+            'Regenachtig': 'rgba(30, 144, 255, 0.7)'
+        };
+
+        const backgroundColors = weerOmschrijvingen.map(omschrijving => {
+            const normalized = omschrijving.toLowerCase();
+            if (normalized.includes('zonnig')) return weatherTypes['Zonnig'];
+            if (normalized.includes('licht bewolkt')) return weatherTypes['Licht bewolkt'];
+            if (normalized.includes('bewolkt')) return weatherTypes['Bewolkt'];
+            if (normalized.includes('regen')) return weatherTypes['Regenachtig'];
+            return weatherTypes['Other'];
+        });
 
         window.weerChartInstance = new Chart(ctx, {
+            type: 'bar',
             data: {
                 labels: labels,
                 datasets: [
                     {
-                        type: 'line',
                         label: 'Temperatuur (°C)',
                         data: temperatuurData,
                         yAxisID: 'y',
                         borderColor: 'rgb(188, 88, 88)',
-                        backgroundColor: 'rgba(255, 99, 132, 0.2)',
-                        tension: 0.3,
-                        fill: false
-                    },
-                    {
-                        type: 'bar',
-                        label: 'Neerslag (mm)',
-                        data: neerslagData,
-                        yAxisID: 'y1',
-                        backgroundColor: 'rgba(54, 162, 235, 0.5)',
-                        borderColor: 'rgb(143, 194, 228)',
+                        backgroundColor: backgroundColors,
                         borderWidth: 1
                     }
                 ]
             },
             options: {
                 responsive: true,
+                plugins: {
+                    tooltip: {
+                        callbacks: {
+                            afterLabel: function (context) {
+                                const index = context.dataIndex;
+                                return `Weer: ${weerOmschrijvingen[index]}`;
+                            }
+                        }
+                    },
+                    legend: {
+                        display: false
+                    },
+                    customLegend: {
+                        position: 'top',
+                        labels: Object.keys(weatherTypes).map(type => ({
+                            text: type,
+                            fillStyle: weatherTypes[type],
+                            strokeStyle: '#fff',
+                            lineWidth: 1
+                        }))
+                    }
+                },
                 scales: {
                     y: {
                         type: 'linear',
@@ -115,37 +169,47 @@ window.renderWeerChart = (temperatuurData, neerslagData) => {
                         },
                         ticks: {
                             color: 'black'
-                        }
-                    },
-                    y1: {
-                        type: 'linear',
-                        position: 'right',
-                        title: {
-                            display: true,
-                            text: 'Neerslag (mm)',
-                            color: 'black'
-                        },
-                        ticks: {
-                            color: 'black'
                         },
                         grid: {
-                            drawOnChartArea: false
+                            color: 'rgba(255, 255, 255, 0.1)'
                         }
                     },
                     x: {
                         ticks: {
                             color: 'black'
-                        }
-                    }
-                },
-                plugins: {
-                    legend: {
-                        labels: {
-                            color: 'black'
+                        },
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.1)'
                         }
                     }
                 }
-            }
+            },
+            plugins: [{
+                id: 'customLegend',
+                afterDraw(chart) {
+                    const ctx = chart.ctx;
+                    const legendItems = chart.options.plugins.customLegend.labels;
+                    const legendX = chart.width / 2 - (legendItems.length * 50) / 2;
+                    let x = legendX;
+
+                    ctx.font = '12px Arial';
+                    ctx.textAlign = 'left';
+                    ctx.textBaseline = 'middle';
+
+                    legendItems.forEach(item => {
+                        ctx.fillStyle = item.fillStyle;
+                        ctx.strokeStyle = item.strokeStyle;
+                        ctx.lineWidth = item.lineWidth;
+                        ctx.fillRect(x, 10, 15, 15);
+                        ctx.strokeRect(x, 10, 15, 15);
+
+                        ctx.fillStyle = 'black';
+                        ctx.fillText(item.text, x + 20, 18);
+
+                        x += 100;
+                    });
+                }
+            }]
         });
 
         console.log('Weer chart rendered successfully.');
