@@ -1,111 +1,217 @@
 ﻿@page "/"
 @rendermode InteractiveServer
 @inject IJSRuntime JS
+@using System.Globalization
 
 <PageTitle>Home</PageTitle>
 
-<div class="container-fluid" style="height: 100vh;">
-    <div class="row h-100">
-        <!-- Linkerkant -->
-        <div class="col-6 custom-left d-flex flex-column p-4">
+<div class="d-flex justify-content-center mb-5">
+    <span>Laatste update @mostRecentDate</span>
+</div>
+
+<div class="container-fluid">
+    <!-- Stack vertically on mobile, side by side on medium+ screens -->
+    <div class="row">
+        <!-- Left Section - Form and Chart -->
+        <div class="col-md-6 custom-left d-flex flex-column p-3 p-md-4">
             <div class="d-flex justify-content-end">
-                <button class="btn color-light btn-light "
-                onclick="alert('Op dit dashboard krijg je inzicht in zwerfafvalverwachtingen op basis van locatie en omgevingsfactoren. Voer een postcode, datum, temperatuur en tijd in. Klik op ‘Toon voorspelling’ om te zien hoeveel zwerfafval er verwacht wordt. De grafiek toont het verwachte aantal stuks afval per tijdstip van de dag. Aan de rechterkant zie je een weeroverzicht en een kaart van de stad met locaties waar voorspellingen relevant zijn.')">
+                <button class="btn color-light btn-light"
+                        onclick="alert('Op dit dashboard krijg je inzicht in zwerfafvalverwachtingen op basis van locatie en omgevingsfactoren. Voer een postcode, datum, temperatuur en tijd in. Klik op 'Toon voorspelling' om te zien hoeveel zwerfafval er verwacht wordt. De grafiek toont het verwachte aantal stuks afval per tijdstip van de dag. Aan de rechterkant zie je een weeroverzicht en een kaart van de stad met locaties waar voorspellingen relevant zijn.')">
                     Info
                 </button>
             </div>
 
             <div class="row g-3">
-                <div class="col-6">
-                    <label for="postcode" class="form-label">Postcode</label>
-                    <InputText id="postcode" class="form-control" @bind-Value="Postcode" placeholder="bv. 4811 ET" />
-                </div>
-                <div class="col-6">
+                <div class="col-12 col-sm-6">
                     <label for="datum" class="form-label">Datum</label>
                     <InputDate id="datum" class="form-control" @bind-Value="Datum" />
                 </div>
-                <div class="col-6">
-                    <label for="temperatuur" class="form-label">Temperatuur</label>
+                <div class="col-12 col-sm-6">
+                    <label for="temperatuur" class="form-label">Minimum temperatuur</label>
                     <div class="input-group">
-                        <InputText id="temperatuur" class="form-control" @bind-Value="Temperatuur"
-                        placeholder="bv. 24" />
+                        <InputNumber id="temperatuur" class="form-control" @bind-Value="MinTemperatuur" />
                         <span class="input-group-text">°C</span>
                     </div>
                 </div>
-                <div class="col-6">
-                    <label for="tijd" class="form-label">Tijd</label>
-                    <InputText id="tijd" class="form-control" @bind-Value="Tijd" placeholder="bv. 13:00" />
-                </div>
             </div>
-
 
             <div class="mt-3 d-flex justify-content-center">
                 <button class="btn color-light btn-light px-4" @onclick="ShowVoorspelling">Toon voorspelling</button>
             </div>
-            <div class="col-6 bg-light d-flex align-items-center justify-content-center"></div>
-            <canvas id="afvalChart" width="300" height="200"></canvas>
-            <h4 class="mt-5 pt-2 pb-2 color-light rounded text-center btn-light">Ophaalprioriteit: gemiddeld</h4>
+
+            <div class="chart-container mt-3">
+                <canvas id="afvalChart"></canvas>
+            </div>
+
+            <h4 class="mt-3 mt-md-5 pt-2 pb-2 color-light rounded text-center btn-light">Ophaalprioriteit: gemiddeld</h4>
         </div>
 
+        <!-- Right Section - Weather and Map -->
+        <div class="col-md-6 custom-right d-flex flex-column p-3 p-md-4">
+            <div class="order-md-1">
+                <h3 class="color-light text-center text-md-start">Weeroverzicht</h3>
+                <div class="weather-chart-container">
+                    <canvas id="weerChart"></canvas>
+                </div>
+            </div>
 
-
-        <!-- Rechterkant -->
-        <div class="col-6 custom-right d-flex flex-column justify-content-center align-items-center">
-            <h3 class="color-light">Weeroverzicht</h3>
-            <canvas id="weerChart" width="300" height="200"></canvas>
-            <h3 class="color-light mt-5">Kaart van Breda</h3>
-            <div id="map"></div>
-
-            @* <div id="mapContainer" style="width: 300px; height: 300px;"> *@
-            @*     <LeafletMap Map="_map" /> *@
-            @* </div>         *@
-            <div class="mb-5">
-                <RealTimeMap @ref="_map" height="50vh" width="40vw" Parameters="@parameters" />
-                @if(trashList == null)
-                {
-                    <p>nothing</p>
-                }
-                else
-                {
-                @trashList.Count
-                }
+            <div class="order-md-3 mt-3 mt-md-5">
+                <h3 class="color-light text-center text-md-start">Kaart van Breda</h3>
+                <div class="map-container mt-2">
+                    <RealTimeMap @ref="_map" height="50vh" Parameters="@parameters"></RealTimeMap>
+                </div>
             </div>
         </div>
     </div>
-    @* OnAfterMapLoaded="MapLoaded(51.591737, 4.779559, 'camera1')" *@
 </div>
-
 
 @code {
     private string Postcode { get; set; } = "";
     private DateTime Datum { get; set; } = DateTime.Today;
+    private double MinTemperatuur { get; set; } = 10;
     private string Temperatuur { get; set; } = "";
     private string Tijd { get; set; } = "";
     private Random random = new();
+    private DateTime? mostRecentDate;
     private int[] afvalPerUur = new int[]
     {
         2, 4, 6, 3, 5, 7, 4, 6, 8, 10, 6, 3, 2
     };
-    private int[] temperatuurData = new[] { 18, 20, 22, 19, 21, 23, 25, 24 };
-    private int[] neerslagData = new[] { 5, 0, 10, 2, 7, 15, 3, 0 };
+    private WeatherData? weatherData;
+    private string[] weerLabels = Array.Empty<string>();
+    private double[] temperaturen = Array.Empty<double>();
+
+    private int[] afvalPerWeek = new int[7];
+    private DateTime[] weekDates = new DateTime[7];
+
+    protected override async Task OnInitializedAsync()
+    {
+        Console.WriteLine("Initializing...");
+        trashList = await ApiClient.GetAllTrash();
+        Console.WriteLine($"Trash list count: {trashList?.Count}");
+
+        mostRecentDate = GetMostRecentTrashDate();
+
+        var today = DateTime.Today;
+        for (int i = 0; i < 7; i++)
+        {
+            weekDates[i] = today.AddDays(-6 + i);
+            afvalPerWeek[i] = 0;
+        }
+
+        if (trashList != null && trashList.Any())
+        {
+            var availableDates = trashList
+                .Select(t => t.DateCollected.Date)
+                .Distinct()
+                .OrderBy(d => d)
+                .ToList();
+
+            var recentDates = availableDates
+                .Where(d => d <= today)
+                .TakeLast(7)
+                .ToList();
+
+            if (recentDates.Count < 7)
+            {
+                var daysMissing = 7 - recentDates.Count;
+                var firstDate = recentDates.FirstOrDefault(today);
+                for (int i = 0; i < daysMissing; i++)
+                {
+                    recentDates.Insert(0, firstDate.AddDays(-i - 1));
+                }
+            }
+
+            for (int i = 0; i < 7; i++)
+            {
+                weekDates[i] = recentDates[i];
+                afvalPerWeek[i] = trashList.Count(t => t.DateCollected.Date == recentDates[i]);
+            }
+        }
+
+
+        if (trashList != null && trashList.Any())
+        {
+            var sortedTrash = trashList.OrderByDescending(t => t.DateCollected).ToList();
+            var recentTrash = sortedTrash.Take(8).ToList();
+
+            weatherData = new WeatherData
+                {
+                    Dates = recentTrash.Select(t => t.DateCollected.ToString("dd/MM/yyyy")).ToArray(),
+                    Temperaturen = recentTrash.Select(t => t.Temperatuur).ToArray(),
+                    WeerOmschrijvingen = recentTrash.Select(t => t.WeerOmschrijving ?? string.Empty).ToArray()
+                };
+
+            weerLabels = weatherData.Dates;
+            temperaturen = weatherData.Temperaturen;
+        }
+
+        await MapLoaded(51.591737f, 4.779559f, "Camera1");
+        var dateLabels = weekDates.Select(d => d.ToString("dd/MM")).ToArray();
+
+    }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
-            await JS.InvokeVoidAsync("renderAfvalChart", afvalPerUur);
-            await JS.InvokeVoidAsync("renderWeerChart", temperatuurData, neerslagData);
+            var dateLabels = weekDates.Select(d => d.ToString("dd/MM", CultureInfo.InvariantCulture)).ToArray();
+            await JS.InvokeVoidAsync("renderAfvalChart", afvalPerWeek, dateLabels);
+
+
+            await Task.Delay(100);
+
+            if (weatherData != null && weatherData.Temperaturen.Any())
+            {
+                Console.WriteLine("Rendering weer chart with data");
+                await JS.InvokeVoidAsync("renderWeerChart",
+                    weatherData.Temperaturen,
+                    weatherData.WeerOmschrijvingen,
+                    weatherData.Dates);
+            }
+            await JS.InvokeVoidAsync("renderAfvalChart", afvalPerWeek, dateLabels);
+        }
+    }
+
+    private async Task ShowVoorspelling()
+    {
+        var filteredTrash = trashList?
+            .Where(t => t.DateCollected >= Datum && t.DateCollected < Datum.AddDays(7))
+            .Where(t => t.Temperatuur >= MinTemperatuur)
+            .ToList();
+
+        if (filteredTrash != null && filteredTrash.Any())
+        {
+            var dailyData = filteredTrash
+                .GroupBy(t => t.DateCollected.Date)
+                .OrderBy(g => g.Key)
+                .Take(7)
+                .ToList();
+
+            for (int i = 0; i < 7; i++)
+            {
+                var currentDate = Datum.AddDays(i);
+                weekDates[i] = currentDate;
+
+                var dayData = dailyData.FirstOrDefault(g => g.Key == currentDate);
+                afvalPerWeek[i] = dayData?.Count() ?? 0;
+            }
+        }
+        else
+        {
+            for (int i = 0; i < 7; i++)
+            {
+                weekDates[i] = Datum.AddDays(i);
+                afvalPerWeek[i] = 0;
+            }
         }
 
+        var dateLabels = weekDates.Select(d => d.ToString("dd/MM")).ToArray();
+        await JS.InvokeVoidAsync("renderAfvalChart", afvalPerWeek, dateLabels);
     }
 
 
     private List<Models.Trash> trashList;
-
-    protected override async Task OnInitializedAsync()
-    {
-        trashList = await ApiClient.GetAllTrash();
-    }
     private RealTimeMap _map;
 
     private RealTimeMap.LoadParameters parameters = new RealTimeMap.LoadParameters
@@ -118,7 +224,7 @@
             zoomLevel = 2
         };
 
-    
+
 
     private async Task MapLoaded(float latitude, float longitude, string name)
     {
@@ -134,16 +240,13 @@
         await _map.Geometric.Points.add(point);
     }
 
-
-
-
-    private async Task ShowVoorspelling()
+    private DateTime? GetMostRecentTrashDate()
     {
-        for (int i = 0; i < afvalPerUur.Length; i++)
+        if (trashList == null || !trashList.Any())
         {
-            afvalPerUur[i] = random.Next(0, 21);
+            return null;
         }
 
-        await JS.InvokeVoidAsync("renderAfvalChart", afvalPerUur);
+        return trashList.Max(t => t.DateCollected);
     }
 }
