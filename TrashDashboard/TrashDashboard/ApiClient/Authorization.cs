@@ -1,0 +1,43 @@
+﻿using System.Text;
+using System.Text.Json;
+
+namespace TrashDashboard.ApiClient
+{
+    public class Authorization
+    {
+        private readonly HttpClient _http;
+
+        public string? Token { get; private set; }
+
+        public Authorization(HttpClient http)
+        {
+            _http = http;
+        }
+
+        public async Task<bool> LoginAsync(string email, string password)
+        {
+            var payload = new { email, password };
+            var json = JsonSerializer.Serialize(payload);
+            var content = new StringContent(json, Encoding.UTF8, "application/json");
+
+            var response = await _http.PostAsync("https://avansict2227609.azurewebsites.net/account/login", content);
+
+            if (response.IsSuccessStatusCode)
+            {
+                var body = await response.Content.ReadAsStringAsync();
+                var doc = JsonDocument.Parse(body);
+                Token = doc.RootElement.GetProperty("token").GetString();
+                return true;
+            }
+
+            return false;
+        }
+
+        public void Logout()
+        {
+            Token = null;
+        }
+
+        public bool IsLoggedIn => !string.IsNullOrWhiteSpace(Token);
+    }
+}

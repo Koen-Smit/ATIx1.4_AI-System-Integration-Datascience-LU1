@@ -1,6 +1,7 @@
 ﻿@page "/login"
 @rendermode InteractiveServer
 @inject NavigationManager Navigation
+@inject Authorization Authorization
 
 <div style="height: 100vh; display: flex; justify-content: center; align-items: flex-start; padding-top: 10vh;">
     <div class="container" style="max-width: 400px;">
@@ -23,6 +24,10 @@
                 Nog een account? <NavLink href="/register">Registreer hier</NavLink>
             </h5>
         </div>
+
+        <div class="mt-3">
+            <h5><strong>@conformationMessage</strong></h5>
+        </div>
     </div>
 </div>
 
@@ -32,9 +37,17 @@
     private string? password;
     private string? conformationMessage = "";
 
-    private void Submit()
+    private async Task Submit()
     {
-        conformationMessage = $"Bevesiging met: {email} + {password}";
-        Navigation.NavigateTo("/");
+        var success = await Authorization.LoginAsync(email, password);
+
+        if (success)
+        {
+            Navigation.NavigateTo("/");
+        }
+        else
+        {
+            conformationMessage = "Inloggen mislukt. Controleer je gegevens.";
+        }
     }
 }
