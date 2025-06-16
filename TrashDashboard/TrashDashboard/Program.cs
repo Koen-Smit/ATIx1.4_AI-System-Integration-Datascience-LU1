@@ -1,4 +1,5 @@
 using TrashDashboard.Components;
+using TrashDashboard.Components.Layout;
 
 namespace TrashDashboard;
 
@@ -12,6 +13,8 @@ public class Program
         // Add services to the container.
         builder.Services.AddRazorComponents()
             .AddInteractiveServerComponents();
+
+        builder.Services.AddBlazorBootstrap();
 
         builder.Services.AddHttpClient();
 

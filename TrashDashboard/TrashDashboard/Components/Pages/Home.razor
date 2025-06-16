@@ -9,16 +9,38 @@
     <span>Laatste update @mostRecentDate</span>
 </div>
 
+
 <div class="container-fluid">
     <!-- Stack vertically on mobile, side by side on medium+ screens -->
     <div class="row">
         <!-- Left Section - Form and Chart -->
         <div class="col-md-6 custom-left d-flex flex-column p-3 p-md-4">
             <div class="d-flex justify-content-end">
-                <button class="btn color-light btn-light"
-                        onclick="alert('Op dit dashboard krijg je inzicht in zwerfafvalverwachtingen op basis van locatie en omgevingsfactoren. Voer een postcode, datum, temperatuur en tijd in. Klik op 'Toon voorspelling' om te zien hoeveel zwerfafval er verwacht wordt. De grafiek toont het verwachte aantal stuks afval per tijdstip van de dag. Aan de rechterkant zie je een weeroverzicht en een kaart van de stad met locaties waar voorspellingen relevant zijn.')">
+                <button class="btn color-light btn-light" @onclick="OpenModal" >
                     Info
                 </button>
+
+                @if (showModal)
+                {
+                    <div class="modal fade show d-block" tabindex="-1" style="color: black">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title">Uitleg</h5>
+                                    <button type="button" class="btn-close" @onclick="CloseModal"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <p>
+                                        Op dit dashboard krijg je inzicht in zwerfafvalverwachtingen op basis van locatie en omgevingsfactoren. Voer een postcode, datum, temperatuur en tijd in. Klik op 'Toon voorspelling' om te zien hoeveel zwerfafval er verwacht wordt. De grafiek toont het verwachte aantal stuks afval per tijdstip van de dag. Aan de rechterkant zie je een weeroverzicht en een kaart van de stad met locaties waar voorspellingen relevant zijn.
+                                    </p>
+                                </div>
+                                <div class="modal-footer">
+                                    <button class="btn btn-secondary" @onclick="CloseModal">Sluiten</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
             </div>
 
             <div class="row g-3">
@@ -63,7 +85,12 @@
             </div>
         </div>
     </div>
+
+    @* <Button Color="ButtonColor.Primary" >Show Employee Component</Button> *@
+
 </div>
+
+
 
 @code {
     private string Postcode { get; set; } = "";
@@ -248,5 +275,17 @@
         }
 
         return trashList.Max(t => t.DateCollected);
+    }
+
+    private bool showModal = false;
+
+    private void OpenModal()
+    {
+        showModal = true;
+    }
+
+    private void CloseModal()
+    {
+        showModal = false;
     }
 }
