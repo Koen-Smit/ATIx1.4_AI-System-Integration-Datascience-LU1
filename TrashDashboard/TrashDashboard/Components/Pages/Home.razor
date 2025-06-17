@@ -1,6 +1,9 @@
 ﻿@page "/"
 @rendermode InteractiveServer
 @inject IJSRuntime JS
+@inject ApiClient ApiClient
+@inject Authorization Authorization
+@inject NavigationManager NavigationManager
 @using System.Globalization
 
 <PageTitle>Home</PageTitle>
@@ -87,6 +90,12 @@
     protected override async Task OnInitializedAsync()
     {
         Console.WriteLine("Initializing...");
+
+        if (!Authorization.IsLoggedIn())
+        {
+            NavigationManager.NavigateTo("/login");
+        }
+
         trashList = await ApiClient.GetAllTrash();
         Console.WriteLine($"Trash list count: {trashList?.Count}");
 

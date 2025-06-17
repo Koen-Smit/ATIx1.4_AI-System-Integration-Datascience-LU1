@@ -1,4 +1,5 @@
 using TrashDashboard.Components;
+using TrashDashboard.ApiClient;
 
 namespace TrashDashboard;
 
@@ -14,6 +15,12 @@ public class Program
             .AddInteractiveServerComponents();
 
         builder.Services.AddHttpClient();
+
+        builder.Services.AddHttpClient<Authorization>();
+        builder.Services.AddSingleton<Authorization>();
+
+        builder.Services.AddHttpClient<ApiClient.ApiClient>();
+        builder.Services.AddScoped<ApiClient.ApiClient>();
 
         var app = builder.Build();
 
