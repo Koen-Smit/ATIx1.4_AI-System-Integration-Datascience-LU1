@@ -7,7 +7,7 @@ namespace TrashDashboard.ApiClient
     public class ApiClient
     {
         private static string apiBaseUrl = "https://avansict2227609.azurewebsites.net/trash";
-        private static string bearerToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1lIjoiQWRtaW4iLCJqdGkiOiJjNjVlNjJiNC01NTc5LTRlMjYtYmE5ZS1hZmU1OThhNDU4NzciLCJodHRwOi8vc2NoZW1hcy5taWNyb3NvZnQuY29tL3dzLzIwMDgvMDYvaWRlbnRpdHkvY2xhaW1zL3JvbGUiOiJBZG1pbiIsImV4cCI6MTc0OTk4MTQ2NiwiaXNzIjoiTW9uaXRvcmluZ0FQSSIsImF1ZCI6Ik1vbml0b3JpbmdBUEkifQ.0aNKbOTIh0jlYZQ-mem1BbzICUOXrAyjPyMqaMGmSXQ";
+        private static string bearerToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1lIjoiQWRtaW4iLCJqdGkiOiJlYWQ1ODY5OS00YzBmLTQ4MGYtYjBhMi1hOTk2YTMzZmYyOTAiLCJodHRwOi8vc2NoZW1hcy5taWNyb3NvZnQuY29tL3dzLzIwMDgvMDYvaWRlbnRpdHkvY2xhaW1zL3JvbGUiOiJBZG1pbiIsImV4cCI6MTc1MDE3NDM5NCwiaXNzIjoiTW9uaXRvcmluZ0FQSSIsImF1ZCI6Ik1vbml0b3JpbmdBUEkifQ.DD2pyQmfk70nwGefC10l2GGerVz1uQAw4tUhcwwvNWo";
 
         public static async Task<Trash> ApiCall(string endpoint)
         {
