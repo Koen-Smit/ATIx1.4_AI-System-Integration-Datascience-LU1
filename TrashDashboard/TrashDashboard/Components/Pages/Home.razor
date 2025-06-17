@@ -91,10 +91,9 @@
     {
         Console.WriteLine("Initializing...");
 
-        if (!Authorization.IsLoggedIn)
+        if (!Authorization.IsLoggedIn())
         {
-            NavigationManager.NavigateTo("/login", forceLoad: true);
-            return;
+            NavigationManager.NavigateTo("/login");
         }
 
         trashList = await ApiClient.GetAllTrash();

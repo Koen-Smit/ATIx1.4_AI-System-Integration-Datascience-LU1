@@ -8,13 +8,13 @@ namespace TrashDashboard.ApiClient
     {
         private static string apiBaseUrl = "https://avansict2227609.azurewebsites.net/trash";
 
-        private readonly Authorization _auth;
-        private readonly HttpClient _http;
+        private readonly Authorization authorization;
+        private readonly HttpClient httpClient;
 
         public ApiClient(HttpClient http, Authorization auth)
         {
-            _http = http;
-            _auth = auth;
+            httpClient = http;
+            authorization = auth;
         }
 
         public async Task<Trash> ApiCall(string endpoint)
@@ -22,7 +22,7 @@ namespace TrashDashboard.ApiClient
             using HttpClient client = new HttpClient();
 
             client.DefaultRequestHeaders.Authorization =
-                new AuthenticationHeaderValue("Bearer", _auth.Token);
+                new AuthenticationHeaderValue("Bearer", authorization.Token);
 
             try
             {
@@ -55,11 +55,11 @@ namespace TrashDashboard.ApiClient
 
         public async Task<List<Trash>> GetAllTrash()
         {
-            _http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _auth.Token);
+            httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", authorization.Token);
 
             try
             {
-                HttpResponseMessage response = await _http.GetAsync(apiBaseUrl);
+                HttpResponseMessage response = await httpClient.GetAsync(apiBaseUrl);
                 response.EnsureSuccessStatusCode();
 
                 string responseBody = await response.Content.ReadAsStringAsync();

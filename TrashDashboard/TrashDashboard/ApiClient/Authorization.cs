@@ -33,11 +33,35 @@ namespace TrashDashboard.ApiClient
             return false;
         }
 
+        public async Task<bool> RegisterAsync(string email, string username, string password)
+        {
+            var payload = new { email, username, password };
+            var json = JsonSerializer.Serialize(payload);
+            var content = new StringContent(json, Encoding.UTF8, "application/json");
+
+            var response = await _http.PostAsync("https://avansict2227609.azurewebsites.net/account/register", content);
+
+            if (response.IsSuccessStatusCode)
+            {
+                var body = await response.Content.ReadAsStringAsync();
+                var doc = JsonDocument.Parse(body);
+                return true;
+            }
+
+            return false;
+        }
+
         public void Logout()
         {
             Token = null;
         }
 
-        public bool IsLoggedIn => !string.IsNullOrWhiteSpace(Token);
-    }
+        public bool IsLoggedIn()
+        {
+            if (Token == null || Token.Trim() == "")
+                return false;
+            else
+                return true;
+        }
+}
 }
