@@ -1,4 +1,5 @@
 using TrashDashboard.Components;
+using TrashDashboard.ApiClient;
 using TrashDashboard.Components.Layout;
 
 namespace TrashDashboard;
@@ -17,6 +18,12 @@ public class Program
         builder.Services.AddBlazorBootstrap();
 
         builder.Services.AddHttpClient();
+
+        builder.Services.AddHttpClient<Authorization>();
+        builder.Services.AddSingleton<Authorization>();
+
+        builder.Services.AddHttpClient<ApiClient.ApiClient>();
+        builder.Services.AddScoped<ApiClient.ApiClient>();
 
         var app = builder.Build();
 

@@ -7,14 +7,22 @@ namespace TrashDashboard.ApiClient
     public class ApiClient
     {
         private static string apiBaseUrl = "https://avansict2227609.azurewebsites.net/trash";
-        private static string bearerToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1lIjoiQWRtaW4iLCJqdGkiOiJlYWQ1ODY5OS00YzBmLTQ4MGYtYjBhMi1hOTk2YTMzZmYyOTAiLCJodHRwOi8vc2NoZW1hcy5taWNyb3NvZnQuY29tL3dzLzIwMDgvMDYvaWRlbnRpdHkvY2xhaW1zL3JvbGUiOiJBZG1pbiIsImV4cCI6MTc1MDE3NDM5NCwiaXNzIjoiTW9uaXRvcmluZ0FQSSIsImF1ZCI6Ik1vbml0b3JpbmdBUEkifQ.DD2pyQmfk70nwGefC10l2GGerVz1uQAw4tUhcwwvNWo";
 
-        public static async Task<Trash> ApiCall(string endpoint)
+        private readonly Authorization authorization;
+        private readonly HttpClient httpClient;
+
+        public ApiClient(HttpClient http, Authorization auth)
+        {
+            httpClient = http;
+            authorization = auth;
+        }
+
+        public async Task<Trash> ApiCall(string endpoint)
         {
             using HttpClient client = new HttpClient();
 
             client.DefaultRequestHeaders.Authorization =
-                new AuthenticationHeaderValue("Bearer", bearerToken);
+                new AuthenticationHeaderValue("Bearer", authorization.Token);
 
             try
             {
@@ -45,16 +53,13 @@ namespace TrashDashboard.ApiClient
             }
         }
 
-        public static async Task<List<Trash>> GetAllTrash()
+        public async Task<List<Trash>> GetAllTrash()
         {
-            using HttpClient client = new HttpClient();
-
-            client.DefaultRequestHeaders.Authorization =
-                new AuthenticationHeaderValue("Bearer", bearerToken);
+            httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", authorization.Token);
 
             try
             {
-                HttpResponseMessage response = await client.GetAsync(apiBaseUrl);
+                HttpResponseMessage response = await httpClient.GetAsync(apiBaseUrl);
                 response.EnsureSuccessStatusCode();
 
                 string responseBody = await response.Content.ReadAsStringAsync();
