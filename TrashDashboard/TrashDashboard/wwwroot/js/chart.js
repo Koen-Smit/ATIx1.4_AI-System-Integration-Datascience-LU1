@@ -1,4 +1,7 @@
-window.renderAfvalChart = (data, labels) => {
+window.renderAfvalChart = (data, labels, colors) => {
+    //console.log("Incoming colors:", colors);
+    console.log("renderAfvalChart CALLED", { data, labels, colors });
+
     try {
         const ctx = document.getElementById('afvalChart')?.getContext('2d');
         if (!ctx) {
@@ -10,6 +13,11 @@ window.renderAfvalChart = (data, labels) => {
             window.afvalChartInstance.destroy();
         }
 
+        const customLegendLabels = [
+            { text: "Historisch afval", fillStyle: "blue" },
+            { text: "Voorspeld afval", fillStyle: "red" }
+        ];
+        console.log()
         window.afvalChartInstance = new Chart(ctx, {
             type: 'bar',
             data: {
@@ -17,8 +25,11 @@ window.renderAfvalChart = (data, labels) => {
                 datasets: [{
                     label: 'Voorspeld aantal stuks afval',
                     data: data,
-                    backgroundColor: 'rgba(75, 192, 192, 0.7)',
-                    borderColor: 'rgba(75, 192, 192, 1)',
+                    backgroundColor: colors,
+                    borderColor: colors,
+                    color: colors,
+                    //'rgba(75, 192, 192, 0.7)'
+                    //borderColor: 'rgba(75, 192, 192, 1)',
                     borderWidth: 1
                 }]
             },
@@ -28,12 +39,16 @@ window.renderAfvalChart = (data, labels) => {
                 aspectRatio: 2,
                 plugins: {
                     legend: {
-                        display: true,
+                        display: false,
                         position: 'top',
                         labels: {
                             color: 'black',
                             boxWidth: 12
                         }
+                    },
+                    customLegend: {
+                        display: true,
+                        labels: customLegendLabels
                     },
                     tooltip: {
                         callbacks: {
@@ -82,10 +97,39 @@ window.renderAfvalChart = (data, labels) => {
                         left: 10
                     }
                 }
-            }
+            },
+            plugins: [{
+                id: 'customLegend',
+                afterDraw(chart) {
+                    const ctx = chart.ctx;
+                    const legendItems = chart.options.plugins.customLegend.labels;
+                    if (!legendItems) return;
+
+                    const legendX = chart.width / 2 - (legendItems.length * 100) / 2;
+                    let x = legendX;
+
+                    ctx.font = '12px Arial';
+                    ctx.textAlign = 'left';
+                    ctx.textBaseline = 'middle';
+
+                    legendItems.forEach(item => {
+                        ctx.fillStyle = item.fillStyle;
+                        ctx.fillRect(x, 10, 15, 15);
+                        ctx.strokeStyle = '#000';
+                        ctx.strokeRect(x, 10, 15, 15);
+
+                        ctx.fillStyle = 'black';
+                        ctx.fillText(item.text, x + 20, 18);
+
+                        x += 120;
+                    });
+                }
+            }]
+
         });
 
         console.log('Afval chart rendered successfully.');
+
     } catch (error) {
         console.error('Error rendering afval chart:', error);
     }
