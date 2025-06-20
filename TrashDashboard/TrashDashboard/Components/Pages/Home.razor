@@ -8,9 +8,11 @@
 
 <PageTitle>Home</PageTitle>
 
-<div class="d-flex justify-content-center mb-5">
+<div class="position-relative mb-5 text-center">
     <span>Laatste update @mostRecentDate</span>
+    <button type="button" class="btn btn-secondary position-absolute top-0 end-0" @onclick="Logout">Uitloggen</button>
 </div>
+
 
 <div class="container-fluid">
     <!-- Stack vertically on mobile, side by side on medium+ screens -->
@@ -257,5 +259,14 @@
         }
 
         return trashList.Max(t => t.DateCollected);
+    }
+
+    public void Logout()
+    {
+        Authorization.Logout();
+        if (!Authorization.IsLoggedIn())
+        {
+            NavigationManager.NavigateTo("/login");
+        }
     }
 }
