@@ -12,14 +12,14 @@ app = FastAPI()
 try:
     model = XGBRegressor()
     model.load_model('waste_model_85plus.json')
-    print("✅ Model loaded successfully from .json format")
+    print("Model loaded successfully from .json format")
 except Exception as e:
-    print(f"⚠️ Couldn't load .json model, falling back to joblib: {str(e)}")
+    print(f"Couldn't load .json model, falling back to joblib: {str(e)}")
     try:
         model = joblib.load('waste_model_85plus.joblib')
-        print("✅ Model loaded successfully from .joblib format")
+        print("Model loaded successfully from .joblib format")
     except Exception as e:
-        print(f"❌ Failed to load model: {str(e)}")
+        print(f"Failed to load model: {str(e)}")
         raise
 
 # Load daily data
