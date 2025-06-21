@@ -116,6 +116,9 @@
 
 
 @code {
+    private List<Trash> trashList;
+    private List<Trash> trashListToShow;
+
     private string dateText = "Trash history";
 
     private string Postcode { get; set; } = "";
@@ -184,7 +187,12 @@
             {
                 weekDates[i] = recentDates[i];
                 afvalPerWeek[i] = trashList.Count(t => t.DateCollected.Date == recentDates[i]);
+
             }
+            trashListToShow = trashList
+                .Where(t => recentDates.Contains(t.DateCollected.Date))
+                .OrderBy(t => t.DateCollected)
+                .ToList();
         }
 
 
@@ -214,9 +222,9 @@
 
     private DateTime[] predictionDates;
 
-    private int[] predictionTrash = [7];
+    // private int[] predictionTrash = [7];
     private string[] colorArray = ["red"];
-    private string[] strings = [DateTime.Now.ToString("dd/MM", CultureInfo.InvariantCulture)];
+    // private string[] strings = [DateTime.Now.ToString("dd/MM", CultureInfo.InvariantCulture)];
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -238,6 +246,7 @@
             }
             await JS.InvokeVoidAsync("renderAfvalChart", afvalPerWeek, dateLabels);
         }
+        await JS.InvokeVoidAsync("console.log", "HEEELPPP 222", afvalPerWeek);
         await ShowVoorspelling();
 
 
@@ -250,34 +259,47 @@
         // Determine the correct start and end dates (inclusive)
         DateTime start = DateTime.Compare(PredictDatum1, PredictDatum2) < 0 ? PredictDatum1 : PredictDatum2;
         DateTime end = DateTime.Compare(PredictDatum1, PredictDatum2) > 0 ? PredictDatum1 : PredictDatum2;
-        await JS.InvokeVoidAsync("console.log", PredictDatum1, PredictDatum1, PredictDatum1, PredictDatum2);
 
         int totalDays = (end - start).Days + 1; // Include both dates
 
         // Resize arrays to match total days
-        predictionTrash = new int[totalDays];
+        PredictedTrash[] predictionTrash = new PredictedTrash[totalDays];
         predictionDates = new DateTime[totalDays];
         colorArray = new string[totalDays];
 
         for (int i = 0; i < totalDays; i++)
         {
             var currentDate = start.AddDays(i);
-            predictionDates[i] = currentDate;
-            predictionTrash[i] = Random.Shared.Next(2, 10); // Replace with API result later
-            colorArray[i] = currentDate > DateTime.Today ? "green" : "gray";
+            //apicall to get predicted info
+            // await JS.InvokeVoidAsync("console.log", currentDate);
+
+            predictionTrash[i] = await ApiClient.GetPredictedTrash(currentDate);
         }
+        // await JS.InvokeVoidAsync("console.log", predictionTrash);
 
-        // foreach (DateTime date in predictionDates)
-        // {
-        //     apicall to get predicted info
+        string[] datesAsString = new string[predictionDates.Length];
+        int[] predictionTrashAmounts = new int[predictionDates.Length];
 
-        // }
+        for (int i = 0; i < predictionTrash.Count(); i++)
+        {
+            datesAsString[i] = predictionTrash[i].Date.ToString("dd/MM", CultureInfo.InvariantCulture);
+            predictionTrashAmounts[i] = predictionTrash[i].PredictedWasteCount;
+            if (predictionTrash[i].IsHoliday)
+            {
+                colorArray[i] = "#000000";
+            }
+            else
+            {
+                colorArray[i] = "#727272";
+            }
+        }
 
         // await JS.InvokeVoidAsync("console.log", predictionDates, colorArray, predictionTrash);
 
-        strings = predictionDates.Select(d => d.ToString("dd/MM", CultureInfo.InvariantCulture)).ToArray();
+        // = predictionDates.Select(d => d.ToString("dd/MM", CultureInfo.InvariantCulture)).ToArray();
 
-        await JS.InvokeVoidAsync("renderVoorspellingChart", predictionTrash, strings, colorArray);
+
+        await JS.InvokeVoidAsync("renderVoorspellingChart", predictionTrashAmounts, datesAsString, colorArray);
     }
 
     private async Task OnDateChanged(ChangeEventArgs e)
@@ -332,11 +354,80 @@
                 var currentDate = Datum.AddDays(i);
                 weekDates[i] = currentDate;
 
-                var dayData = dailyData.FirstOrDefault(g => g.Key == currentDate);
-                afvalPerWeek[i] = dayData?.Count() ?? 0;
+                List<Trash> dayData = trashListToShow
+                .Where(t => t.DateCollected.Date == currentDate)
+                .ToList();
 
-                colors[i] = currentDate > DateTime.Today ? "red" : "blue"; // 🔴🔵 coloring
+                await JS.InvokeVoidAsync("console.log", "HELP ME PLSSS", trashList);
+
+                int count = dayData.Count;
+                afvalPerWeek[i] = count;
+
+                // Determine base color based on trash amount
+                string baseColor;
+                if (count > 100)
+                {
+                    baseColor = "250, 0, 3";     // High Priority - red
+                }
+                else if (count > 50)
+                {
+                    baseColor = "250, 161, 0";   // Medium Priority - orange
+                }
+                else if (count > 10)
+                {
+                    baseColor = "198, 249, 1";   // Low Priority - yellow-green
+                }
+                else if (count > 0)
+                {
+                    baseColor = "2, 248, 18";    // No Priority - green
+                }
+                else
+                {
+                    baseColor = "204, 204, 204"; // Default - grey
+                }
+
+                // Determine opacity based on DagCategorie
+                string dagCategorie = dayData.FirstOrDefault()?.DagCategorie?.ToLower() ?? "werkdag";
+                double opacity = dagCategorie switch
+                {
+                    "holiday" => 1.0,
+                    "weekend" => 0.6,
+                    _ => 0.3 // Treat unknown or "werkdag" as default
+                };
+
+                // Combine into RGBA
+                colors[i] = $"rgba({baseColor}, {opacity.ToString("0.0", System.Globalization.CultureInfo.InvariantCulture)})";
+
             }
+            // for (int i = 0; i < 7; i++)
+            // {
+                
+
+            //     var dayData = dailyData.FirstOrDefault(g => g.Key == currentDate);
+            //     await JS.InvokeVoidAsync("console.log", "HHEELLPPPP", dayData);
+
+            //     afvalPerWeek[i] = dayData?.Count() ?? 0;
+            //     { text: "High Priority", fillStyle: "#fa0003" },
+            //     { text: "medium Priority", fillStyle: "#faa100" },
+            //     { text: "low Priority", fillStyle: "#c6f901" },
+            //     { text: "no Priority", fillStyle: "#02f812" },
+            //     { text: "holiday", fillStyle: "##f208b4" },
+
+            //     if(dayData.){
+
+            //     }
+            //     else if (dayData?.Count() > 100)
+            //     {
+            //         colors[i] = "fa0003";
+            //     }
+            //     else if ()
+            //     {
+            //         colors[i] = "fa0003";
+
+            //     }
+            //     = currentDate > DateTime.Today ? "red" : "blue"; 🔴🔵 coloring
+            //     colors[i] = "blue";
+            // }
         }
         else
         {
@@ -358,7 +449,6 @@
     }
 
 
-    private List<Models.Trash> trashList;
     private RealTimeMap _map;
 
     private RealTimeMap.LoadParameters parameters = new RealTimeMap.LoadParameters

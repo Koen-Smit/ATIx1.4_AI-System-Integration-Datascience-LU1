@@ -15,7 +15,11 @@ window.renderAfvalChart = (data, labels, colors) => {
         }
 
         const customLegendLabels = [
-            { text: "Historisch afval", fillStyle: "blue" },
+            { text: "High Priority", fillStyle: "#fa0003" },
+            { text: "medium Priority", fillStyle: "#faa100" },
+            { text: "low Priority", fillStyle: "#c6f901" },
+            { text: "no Priority", fillStyle: "#02f812" },
+            { text: "holiday", fillStyle: "##f208b4" },
         ];
         console.log()
         window.afvalChartInstance = new Chart(ctx, {
