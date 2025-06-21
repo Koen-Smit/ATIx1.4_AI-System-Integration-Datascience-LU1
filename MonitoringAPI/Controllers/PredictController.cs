@@ -18,8 +18,8 @@ public class PredictController : ControllerBase
     public PredictController(IHttpClientFactory httpClientFactory, IConfiguration configuration)
     {
         _httpClient = httpClientFactory.CreateClient();
-        _predictionApiUrl = configuration["PredictionApi:BaseUrl"] ??
-            throw new InvalidOperationException("Prediction API URL not configured");
+        //_predictionApiUrl = configuration["PredictionApi:BaseUrl"] ??
+        //    throw new InvalidOperationException("Prediction API URL not configured");
     }
 
     [HttpPost]
@@ -62,5 +62,37 @@ public class PredictController : ControllerBase
                 Details = ex.Message
             });
         }
+    }
+
+    [HttpPost("mock")]
+    public async Task<IActionResult> MockPredict([FromBody] PredictionRequest request)
+    {
+        if (request.Date.Date <= DateTime.Today)
+        {
+            return BadRequest(new
+            {
+                Error = "Invalid date",
+                Details = "Date cannot be in the past"
+            });
+        }
+
+        var random = new Random();
+        var isChristmas = request.Date.Month == 12 && request.Date.Day is 25 or 26;
+
+        var result = new PredictionResponse
+        {
+            Date = request.Date.ToString("yyyy-MM-dd"),
+            PredictedTemperature = Math.Round(10 + random.NextDouble() * 20, 1), // 10-30°C
+            IsHoliday = isChristmas,
+            PredictedWasteCount = random.Next(20, 151) // 20-150
+        };
+
+        return Ok(new
+        {
+            result.Date,
+            result.PredictedTemperature,
+            result.IsHoliday,
+            result.PredictedWasteCount
+        });
     }
 }
