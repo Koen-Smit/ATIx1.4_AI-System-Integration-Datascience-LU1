@@ -75,6 +75,16 @@
 
             <h4 class="mt-3 mt-md-5 pt-2 pb-2 color-light rounded text-center btn-light">Ophaalprioriteit: gemiddeld</h4>
 
+            <div class="row g-3">
+                <div class="col-12 col-sm-6">
+                    <label for="predictdatum" class="form-label">Datum</label>
+                    <InputDate id="predictdatum" class="form-control" @bind-Value="PredictDatum1" />
+                </div>
+                <div class="col-12 col-sm-6">
+                    <label for="predictdatum2" class="form-label">Second Datum</label>
+                    <InputDate id="predictdatum2" class="form-control" @bind-Value="PredictDatum2" />
+                </div>
+            </div>
             <div class="chart-container mt-3">
                 <canvas id="voorspellingChart"></canvas>
             </div>
@@ -198,6 +208,11 @@
 
     }
 
+    private DateTime _predictDatum1 = DateTime.Now.AddDays(1);
+    private DateTime _predictDatum2 = DateTime.Now.AddDays(1);
+
+    private DateTime[] predictionDates;
+
     private int[] predictionTrash = [7];
     private string[] colorArray = ["red"];
     private string[] strings = [DateTime.Now.ToString("dd/MM", CultureInfo.InvariantCulture)];
@@ -227,10 +242,72 @@
 
         await RenderPredictionChart();
     }
-
     private async Task RenderPredictionChart()
     {
+        PredictDatum1 = PredictDatum1.Date;
+        PredictDatum2 = PredictDatum2.Date;
+        // Determine the correct start and end dates (inclusive)
+        DateTime start = DateTime.Compare(PredictDatum1, PredictDatum2) < 0 ? PredictDatum1 : PredictDatum2;
+        DateTime end = DateTime.Compare(PredictDatum1, PredictDatum2) > 0 ? PredictDatum1 : PredictDatum2;
+        await JS.InvokeVoidAsync("console.log", PredictDatum1, PredictDatum1, PredictDatum1, PredictDatum2);
+
+        int totalDays = (end - start).Days + 1; // Include both dates
+
+        // Resize arrays to match total days
+        predictionTrash = new int[totalDays];
+        predictionDates = new DateTime[totalDays];
+        colorArray = new string[totalDays];
+
+        for (int i = 0; i < totalDays; i++)
+        {
+            var currentDate = start.AddDays(i);
+            predictionDates[i] = currentDate;
+            predictionTrash[i] = Random.Shared.Next(2, 10); // Replace with API result later
+            colorArray[i] = currentDate > DateTime.Today ? "green" : "gray";
+        }
+
+        // foreach (DateTime date in predictionDates)
+        // {
+        //     apicall to get predicted info
+
+        // }
+
+        // await JS.InvokeVoidAsync("console.log", predictionDates, colorArray, predictionTrash);
+
+        strings = predictionDates.Select(d => d.ToString("dd/MM", CultureInfo.InvariantCulture)).ToArray();
+
         await JS.InvokeVoidAsync("renderVoorspellingChart", predictionTrash, strings, colorArray);
+    }
+
+    private async Task OnDateChanged(ChangeEventArgs e)
+    {
+        await RenderPredictionChart();
+    }
+
+    private DateTime PredictDatum1
+    {
+        get => _predictDatum1;
+        set
+        {
+            if (_predictDatum1 != value)
+            {
+                _predictDatum1 = value;
+                _ = RenderPredictionChart(); // fire-and-forget async call
+            }
+        }
+    }
+
+    private DateTime PredictDatum2
+    {
+        get => _predictDatum2;
+        set
+        {
+            if (_predictDatum2 != value)
+            {
+                _predictDatum2 = value;
+                _ = RenderPredictionChart(); // fire-and-forget async call
+            }
+        }
     }
 
     private async Task ShowVoorspelling()

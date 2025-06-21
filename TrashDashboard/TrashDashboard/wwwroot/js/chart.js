@@ -16,7 +16,6 @@ window.renderAfvalChart = (data, labels, colors) => {
 
         const customLegendLabels = [
             { text: "Historisch afval", fillStyle: "blue" },
-            { text: "Voorspeld afval", fillStyle: "red" }
         ];
         console.log()
         window.afvalChartInstance = new Chart(ctx, {
@@ -24,7 +23,7 @@ window.renderAfvalChart = (data, labels, colors) => {
             data: {
                 labels: labels,
                 datasets: [{
-                    label: 'Voorspeld aantal stuks afval',
+                    label: 'gevonden aantal stuks afval',
                     data: data,
                     backgroundColor: colors,
                     borderColor: colors,
@@ -54,7 +53,7 @@ window.renderAfvalChart = (data, labels, colors) => {
                     tooltip: {
                         callbacks: {
                             label: function (context) {
-                                return `Voorspeld afval: ${context.raw} stuks`;
+                                return `gevonden afval: ${context.raw} stuks`;
                             }
                         }
                     }
@@ -264,9 +263,6 @@ window.renderWeerChart = (temperatuurData, weerOmschrijvingen, labels) => {
 };
 
 window.renderVoorspellingChart = (dataset, labels, colors) => {
-    //console.log("Incoming colors:", colors);
-    //var test1 = ["20/6"];
-    //var test2 = [7];
     console.log("renderChart voorspelling CALLED", { dataset, labels, colors });
 
     try {
@@ -279,11 +275,11 @@ window.renderVoorspellingChart = (dataset, labels, colors) => {
         if (window.voorspellingChartInstance instanceof Chart) {
             window.voorspellingChartInstance.destroy();
         }
-        // data sample for the chart
-        let data = {
+
+        const data = {
             labels: labels,
             datasets: [{
-                label: 'rediction Bar Chart',
+                label: 'Voorspeld aantal stuks afval',
                 data: dataset,
                 backgroundColor: colors,
                 borderColor: colors,
@@ -291,155 +287,55 @@ window.renderVoorspellingChart = (dataset, labels, colors) => {
             }]
         };
 
-        // Configuration options for the chart
-        let options = {
+        const options = {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    callbacks: {
+                        label: context => `Voorspeld afval: ${context.raw} stuks`
+                    }
+                }
+            },
             scales: {
                 y: {
-                    beginAtZero: true
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: 'Aantal stuks afval',
+                        color: 'black'
+                    },
+                    ticks: {
+                        color: 'black',
+                        stepSize: 1,
+                        precision: 0
+                    },
+                    grid: {
+                        color: 'rgba(0, 0, 0, 0.1)'
+                    }
+                },
+                x: {
+                    title: {
+                        display: true,
+                        text: 'Datum',
+                        color: 'black'
+                    },
+                    ticks: { color: 'black' },
+                    grid: { display: false }
                 }
             }
         };
 
-        // Get the canvas element
-        //let ctx = document.getElementById('myBarChart')
-        //    .getContext('2d');
-
-        // Create the bar chart
-        let myBarChart = new Chart(ctx, {
+        window.voorspellingChartInstance = new Chart(ctx, {
             type: 'bar',
             data: data,
             options: options
         });
-        //let data = {
-        //    labels: labels,
-        //    datasets: [{
-        //        data: dataset,
-        //        backgroundColor: "red",
-        //        borderWidth: 1
-        //    }]
-
-        //};
-        
-        //window.voorspellingChartInstance = new Chart(ctx, {
-        //    type: 'bar',
-        //    data: data,
-        //    options: options
-        //})
-
-
-        //window.voorspellingChartInstance = new Chart(ctx, {
-        //    type: 'bar',
-        //    data: {
-        //        labels: labels,
-        //        datasets: [{
-        //            label: 'Voorspeld aantal stuks afval',
-        //            data: data,
-        //            backgroundColor: "red",
-        //            borderColor: "red",
-        //            color: "red",
-        //            //'rgba(75, 192, 192, 0.7)'
-        //            //borderColor: 'rgba(75, 192, 192, 1)',
-        //            borderWidth: 1
-        //        }]
-        //    },
-        //    options: {
-        //        responsive: true,
-        //        maintainAspectRatio: false,
-        //        aspectRatio: 2,
-        //        plugins: {
-        //            legend: {
-        //                display: false,
-        //                position: 'top',
-        //                labels: {
-        //                    color: 'black',
-        //                    boxWidth: 12
-        //                }
-        //            },
-        //            //customLegend: {
-        //            //    display: true,
-        //            //    labels: customLegendLabels
-        //            //},
-        //            tooltip: {
-        //                callbacks: {
-        //                    label: function (context) {
-        //                        return `Voorspeld afval: ${context.raw} stuks`;
-        //                    }
-        //                }
-        //            }
-        //        },
-        //        scales: {
-        //            y: {
-        //                beginAtZero: true,
-        //                title: {
-        //                    display: true,
-        //                    text: 'Aantal stuks afval',
-        //                    color: 'black'
-        //                },
-        //                ticks: {
-        //                    color: 'black',
-        //                    stepSize: 1,
-        //                    precision: 0
-        //                },
-        //                grid: {
-        //                    color: 'rgba(0, 0, 0, 0.1)'
-        //                }
-        //            },
-        //            x: {
-        //                title: {
-        //                    display: true,
-        //                    text: 'Datum',
-        //                    color: 'black'
-        //                },
-        //                ticks: {
-        //                    color: 'black'
-        //                },
-        //                grid: {
-        //                    display: false
-        //                }
-        //            }
-        //        },
-        //        layout: {
-        //            padding: {
-        //                top: 10,
-        //                right: 10,
-        //                bottom: 10,
-        //                left: 10
-        //            }
-        //        }
-        //    }
-        //    //plugins: [{
-        //    //    id: 'customLegend',
-        //    //    afterDraw(chart) {
-        //    //        const ctx = chart.ctx;
-        //    //        const legendItems = chart.options.plugins.customLegend.labels;
-        //    //        if (!legendItems) return;
-
-        //    //        const legendX = chart.width / 2 - (legendItems.length * 100) / 2;
-        //    //        let x = legendX;
-
-        //    //        ctx.font = '12px Arial';
-        //    //        ctx.textAlign = 'left';
-        //    //        ctx.textBaseline = 'middle';
-
-        //    //        legendItems.forEach(item => {
-        //    //            ctx.fillStyle = item.fillStyle;
-        //    //            ctx.fillRect(x, 10, 15, 15);
-        //    //            ctx.strokeStyle = '#000';
-        //    //            ctx.strokeRect(x, 10, 15, 15);
-
-        //    //            ctx.fillStyle = 'black';
-        //    //            ctx.fillText(item.text, x + 20, 18);
-
-        //    //            x += 120;
-        //    //        });
-        //    //    }
-        //    //}]
-
-        //});
 
         console.log('Voorspelling chart rendered successfully.');
 
     } catch (error) {
         console.error('Error rendering voorspelling chart:', error);
     }
-};
+}; 
