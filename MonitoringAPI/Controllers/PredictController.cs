@@ -63,32 +63,4 @@ public class PredictController : ControllerBase
             });
         }
     }
-
-    [HttpGet("health")]
-    public async Task<IActionResult> CheckHealth()
-    {
-        try
-        {
-            var response = await _httpClient.GetAsync(_predictionApiUrl);
-
-            if (!response.IsSuccessStatusCode)
-            {
-                return StatusCode((int)response.StatusCode,
-                    $"Prediction API returned {response.StatusCode}");
-            }
-
-            var content = await response.Content.ReadAsStringAsync();
-            var healthStatus = JsonSerializer.Deserialize<Dictionary<string, object>>(content);
-
-            return Ok(healthStatus);
-        }
-        catch (Exception ex)
-        {
-            return StatusCode(500, new
-            {
-                Error = "Failed to check prediction API health",
-                Details = ex.Message
-            });
-        }
-    }
 }
