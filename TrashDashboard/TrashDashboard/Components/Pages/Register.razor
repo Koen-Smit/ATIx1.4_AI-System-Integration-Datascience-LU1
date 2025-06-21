@@ -1,6 +1,7 @@
 ﻿@page "/register"
 @rendermode InteractiveServer
 @inject NavigationManager Navigation
+@inject Authorization Authorization
 
 <div style="height: 100vh; display: flex; justify-content: center; align-items: flex-start; padding-top: 10vh;">
     <div class="container" style="max-width: 400px;">
@@ -22,11 +23,22 @@
         </div>
 
         <div class="form-floating mt-2">
-            <input type="password" @bind="confirmpassword" class="form-control">
+            <input type="password" @bind="confirmPassword" class="form-control">
             <label>Herhaal wachtwoord</label>
         </div>
 
         <button type="button" class="btn btn-secondary mt-3" @onclick="Submit">Registreren</button>
+
+        <div class="mt-3">
+            <h5><strong>@conformationMessage</strong></h5>
+        </div>
+
+        @if (isLoading)
+        {
+            <div class="spinner-border" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+        }
     </div>
 </div>
 
@@ -35,19 +47,30 @@
     private string? email;
     private string? username;
     private string? password;
-    private string? confirmpassword;
+    private string? confirmPassword;
     private string? conformationMessage = "";
+    private bool isLoading = false;
 
-    private void Submit()
+    public async Task Submit()
     {
-        if ((password == confirmpassword) && (password != null))
+        if (password != confirmPassword)
         {
-            conformationMessage = $"Bevesiging met: {email} + {password}";
-            Navigation.NavigateTo("/login");
+            conformationMessage = $"Wachtwoorden zijn niet hetzeldfe.";
         }
         else
         {
-            conformationMessage = $"Kan niet bevestigd worden: {password} is niet gelijk aan {confirmpassword}";
+            isLoading = true;
+            bool success = await Authorization.RegisterAsync(email, username, password);
+            isLoading = false;
+
+            if (success)
+            {
+                Navigation.NavigateTo("/login");
+            }
+            else
+            {
+                conformationMessage = "Fout bij registreren, controleer connectie.";
+            }
         }
     }
 }
