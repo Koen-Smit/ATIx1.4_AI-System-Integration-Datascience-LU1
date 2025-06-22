@@ -10,6 +10,7 @@
 
 <div class="position-relative mb-5 text-center">
     <span>Laatste update @mostRecentDate</span>
+    <button type="button" @onclick="GoTable" class="btn btn-secondary position-absolute top-0 start-0">Historie</button>
     <button type="button" class="btn btn-secondary position-absolute top-0 end-0" @onclick="Logout">Uitloggen</button>
 </div>
 
@@ -469,5 +470,10 @@
         {
             NavigationManager.NavigateTo("/login");
         }
+    }
+
+    private void GoTable()
+    {
+        NavigationManager.NavigateTo("/table");
     }
 }

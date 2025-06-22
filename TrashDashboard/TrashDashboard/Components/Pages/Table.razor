@@ -1,0 +1,68 @@
+@page "/table"
+@rendermode InteractiveServer
+@inject ApiClient ApiClient
+@inject Authorization Authorization
+@inject NavigationManager NavigationManager
+
+<button @onclick="GoHome" class="btn btn-secondary mb-3">← Terug naar dashboard</button>
+
+<h3 class="mb-4">Afvalhistoriek</h3>
+
+@if (trashList == null)
+{
+    <p>Gegevens worden geladen...</p>
+}
+else
+{
+    <div style="margin: 50px;">
+        <table class="table table-bordered table-striped">
+            <thead class="table-light">
+                <tr>
+                    <th>Datum</th>
+                    <th>Dagcategorie</th>
+                    <th>Type afval</th>
+                    <th>Temperatuur (°C)</th>
+                    <th>Windrichting</th>
+                    <th>Weeromschrijving</th>
+                    <th>Confidence</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var trash in trashList)
+                {
+                    <tr>
+                        <td>@trash.DateCollected.ToString("dd-MM-yyyy")</td>
+                        <td>@trash.DagCategorie</td>
+                        <td>@trash.TypeAfval</td>
+                        <td>@trash.Temperatuur</td>
+                        <td>@trash.WindRichting</td>
+                        <td>@trash.WeerOmschrijving</td>
+                        <td>@trash.Confidence</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+}
+
+@code {
+    private List<Trash>? trashList;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (!Authorization.IsLoggedIn())
+        {
+            NavigationManager.NavigateTo("/login");
+            return;
+        }
+
+        trashList = await ApiClient.GetAllTrash();
+    }
+
+    private void GoHome()
+    {
+        NavigationManager.NavigateTo("/");
+    }
+
+}
