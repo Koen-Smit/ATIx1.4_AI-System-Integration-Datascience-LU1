@@ -15,10 +15,10 @@ window.renderAfvalChart = (data, labels, colors, temperatuurList) => {
         }
 
         const customLegendLabels = [
-            { text: "High Priority", fillStyle: "#fa0003" },
-            { text: "medium Priority", fillStyle: "#faa100" },
-            { text: "low Priority", fillStyle: "#c6f901" },
-            { text: "no Priority", fillStyle: "#02f812" },
+            { text: "Hoge prioriteit", fillStyle: "#fa0003" },
+            { text: "Gemiddelde prioriteit", fillStyle: "#faa100" },
+            { text: "Lage prioriteit", fillStyle: "#c6f901" },
+            { text: "Geen prioriteit", fillStyle: "#02f812" },
             //{ text: "holiday", fillStyle: "##f208b4" },
         ];
         console.log()
@@ -318,8 +318,8 @@ window.renderVoorspellingChart = (dataset, labels, colors, ) => {
             window.voorspellingChartInstance.destroy();
         }
         const customLegendLabels = [
-            { text: "normal", fillStyle: "#727272" },
-            { text: "holiday", fillStyle: "#000000" },
+            { text: "Normale dag", fillStyle: "#727272" },
+            { text: "Feestdag", fillStyle: "#000000" },
             //{ text: "holiday", fillStyle: "##f208b4" },
         ];
 

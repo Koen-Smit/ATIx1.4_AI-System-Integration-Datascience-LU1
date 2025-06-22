@@ -117,14 +117,29 @@ namespace TrashDashboard.ApiClient
         }
         public async Task<List<Trash>> CreateRandomTrash(int count)
         {
-            var response = await httpClient.PostAsJsonAsync($"trash?count={count}", new { });
+            httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", authorization.Token);
 
-            if (response.IsSuccessStatusCode)
+            try
             {
-                return await response.Content.ReadFromJsonAsync<List<Trash>>();
-            }
+                string url = $"{apiBaseUrl}/trash?count={count}";
 
-            throw new HttpRequestException($"Error creating random trash: {response.StatusCode}");
+                var content = new StringContent("{}", Encoding.UTF8, "application/json");
+                HttpResponseMessage response = await httpClient.PostAsync(url, content);
+                response.EnsureSuccessStatusCode();
+
+                string responseBody = await response.Content.ReadAsStringAsync();
+                List<Trash> result = JsonSerializer.Deserialize<List<Trash>>(responseBody, new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true
+                });
+
+                return result ?? new List<Trash>();
+            }
+            catch (HttpRequestException e)
+            {
+                Console.WriteLine($"Request error: {e.Message}");
+                return new List<Trash>();
+            }
         }
 
 
