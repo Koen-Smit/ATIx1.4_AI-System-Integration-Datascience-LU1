@@ -33,7 +33,7 @@ public class TrashController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<IActionResult> CreateRandom([FromQuery] int count = 1)
+    public async Task<IActionResult> Create([FromQuery] int count = 1)
     {
         count = Math.Clamp(count, 1, 20);
 

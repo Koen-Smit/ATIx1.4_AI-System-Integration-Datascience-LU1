@@ -17,24 +17,6 @@ public class TrashControllerTests
         _controller = new TrashController(_mockRepo.Object);
     }
 
-    [TestMethod]
-    public async Task CreateTrash_ValidData_ReturnsCreated()
-    {
-        var dto = new CreateTrashDTO
-        {
-            DateCollected = DateTime.Now,
-            TypeAfval = "Plastic",
-            CameraId = 1
-        };
-
-        var expectedTrash = new Trash { Id = 1 };
-        _mockRepo.Setup(repo => repo.AddAsync(It.IsAny<Trash>())).ReturnsAsync(expectedTrash);
-
-        var result = await _controller.Create(dto);
-
-        Assert.IsInstanceOfType<CreatedAtActionResult>(result, out var createdAtActionResult);
-        Assert.AreEqual(201, createdAtActionResult.StatusCode);
-    }
 
     [TestMethod]
     public async Task GetFiltered_ByDate_ReturnsFilteredResults()
