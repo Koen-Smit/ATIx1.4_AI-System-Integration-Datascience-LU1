@@ -1,4 +1,5 @@
-﻿using System.Net.Http.Headers;
+﻿using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
 using TrashDashboard.Models;
@@ -114,7 +115,17 @@ namespace TrashDashboard.ApiClient
                 return new PredictedTrash();
             }
         }
+        public async Task<List<Trash>> CreateRandomTrash(int count)
+        {
+            var response = await httpClient.PostAsJsonAsync($"trash?count={count}", new { });
 
+            if (response.IsSuccessStatusCode)
+            {
+                return await response.Content.ReadFromJsonAsync<List<Trash>>();
+            }
+
+            throw new HttpRequestException($"Error creating random trash: {response.StatusCode}");
+        }
 
 
     }
