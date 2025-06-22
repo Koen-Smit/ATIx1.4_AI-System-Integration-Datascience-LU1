@@ -74,7 +74,7 @@
                 <canvas id="afvalChart"></canvas>
             </div>
 
-            <h4 class="mt-3 mt-md-5 pt-2 pb-2 color-light rounded text-center btn-light">Ophaalprioriteit: gemiddeld</h4>
+            @* <h4 class="mt-3 mt-md-5 pt-2 pb-2 color-light rounded text-center btn-light">Ophaalprioriteit: gemiddeld</h4> *@
 
             <div class="row g-3">
                 <div class="col-12 col-sm-6">
@@ -293,12 +293,6 @@
                 colorArray[i] = "#727272";
             }
         }
-
-        // await JS.InvokeVoidAsync("console.log", predictionDates, colorArray, predictionTrash);
-
-        // = predictionDates.Select(d => d.ToString("dd/MM", CultureInfo.InvariantCulture)).ToArray();
-
-
         await JS.InvokeVoidAsync("renderVoorspellingChart", predictionTrashAmounts, datesAsString, colorArray);
     }
 
@@ -358,8 +352,6 @@
                 .Where(t => t.DateCollected.Date == currentDate)
                 .ToList();
 
-                await JS.InvokeVoidAsync("console.log", "HELP ME PLSSS", trashList);
-
                 int count = dayData.Count;
                 afvalPerWeek[i] = count;
 
@@ -399,35 +391,6 @@
                 colors[i] = $"rgba({baseColor}, {opacity.ToString("0.0", System.Globalization.CultureInfo.InvariantCulture)})";
 
             }
-            // for (int i = 0; i < 7; i++)
-            // {
-                
-
-            //     var dayData = dailyData.FirstOrDefault(g => g.Key == currentDate);
-            //     await JS.InvokeVoidAsync("console.log", "HHEELLPPPP", dayData);
-
-            //     afvalPerWeek[i] = dayData?.Count() ?? 0;
-            //     { text: "High Priority", fillStyle: "#fa0003" },
-            //     { text: "medium Priority", fillStyle: "#faa100" },
-            //     { text: "low Priority", fillStyle: "#c6f901" },
-            //     { text: "no Priority", fillStyle: "#02f812" },
-            //     { text: "holiday", fillStyle: "##f208b4" },
-
-            //     if(dayData.){
-
-            //     }
-            //     else if (dayData?.Count() > 100)
-            //     {
-            //         colors[i] = "fa0003";
-            //     }
-            //     else if ()
-            //     {
-            //         colors[i] = "fa0003";
-
-            //     }
-            //     = currentDate > DateTime.Today ? "red" : "blue"; 🔴🔵 coloring
-            //     colors[i] = "blue";
-            // }
         }
         else
         {

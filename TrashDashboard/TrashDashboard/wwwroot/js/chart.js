@@ -19,7 +19,7 @@ window.renderAfvalChart = (data, labels, colors) => {
             { text: "medium Priority", fillStyle: "#faa100" },
             { text: "low Priority", fillStyle: "#c6f901" },
             { text: "no Priority", fillStyle: "#02f812" },
-            { text: "holiday", fillStyle: "##f208b4" },
+            //{ text: "holiday", fillStyle: "##f208b4" },
         ];
         console.log()
         window.afvalChartInstance = new Chart(ctx, {
@@ -118,9 +118,9 @@ window.renderAfvalChart = (data, labels, colors) => {
 
                     legendItems.forEach(item => {
                         ctx.fillStyle = item.fillStyle;
-                        ctx.fillRect(x, 10, 15, 15);
+                        ctx.fillRect(x, 0, 15, 15);
                         ctx.strokeStyle = '#000';
-                        ctx.strokeRect(x, 10, 15, 15);
+                        ctx.strokeRect(x, 0, 15, 15);
 
                         ctx.fillStyle = 'black';
                         ctx.fillText(item.text, x + 20, 18);
@@ -248,8 +248,8 @@ window.renderWeerChart = (temperatuurData, weerOmschrijvingen, labels) => {
                         ctx.fillStyle = item.fillStyle;
                         ctx.strokeStyle = item.strokeStyle;
                         ctx.lineWidth = item.lineWidth;
-                        ctx.fillRect(x, 10, 15, 15);
-                        ctx.strokeRect(x, 10, 15, 15);
+                        ctx.fillRect(x, 0, 15, 15);
+                        ctx.strokeRect(x, 0, 15, 15);
 
                         ctx.fillStyle = 'black';
                         ctx.fillText(item.text, x + 20, 18);
@@ -279,6 +279,11 @@ window.renderVoorspellingChart = (dataset, labels, colors) => {
         if (window.voorspellingChartInstance instanceof Chart) {
             window.voorspellingChartInstance.destroy();
         }
+        const customLegendLabels = [
+            { text: "normal", fillStyle: "#727272" },
+            { text: "holiday", fillStyle: "#000000" },
+            //{ text: "holiday", fillStyle: "##f208b4" },
+        ];
 
         const data = {
             labels: labels,
@@ -330,11 +335,38 @@ window.renderVoorspellingChart = (dataset, labels, colors) => {
                 }
             }
         };
+        const plugins = [{
+            id: 'customLegend',
+            afterDraw(chart) {
+                const ctx = chart.ctx;
+                const legendItems = customLegendLabels;
+                if (!legendItems) return;
 
+                const legendX = chart.width / 2 - (legendItems.length * 100) / 2;
+                let x = legendX;
+
+                ctx.font = '12px Arial';
+                ctx.textAlign = 'left';
+                ctx.textBaseline = 'middle';
+
+                legendItems.forEach(item => {
+                    ctx.fillStyle = item.fillStyle;
+                    ctx.fillRect(x, 0, 15, 15);
+                    ctx.strokeStyle = '#000';
+                    ctx.strokeRect(x, 0, 15, 15);
+
+                    ctx.fillStyle = 'black';
+                    ctx.fillText(item.text, x + 20, 18);
+
+                    x += 120;
+                });
+            }
+        }];
         window.voorspellingChartInstance = new Chart(ctx, {
             type: 'bar',
             data: data,
-            options: options
+            options: options,
+            plugins: plugins
         });
 
         console.log('Voorspelling chart rendered successfully.');
