@@ -33,38 +33,59 @@ public class TrashController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<IActionResult> Create([FromBody] CreateTrashDTO dto)
+    public async Task<IActionResult> CreateRandom([FromQuery] int count = 1)
     {
-        if (!ModelState.IsValid)
-            return BadRequest(ModelState);
+        count = Math.Clamp(count, 1, 20);
 
-        var trash = new Trash
+        var httpClient = new HttpClient();
+        var sensorData = await httpClient.GetFromJsonAsync<List<SensorData>>($"https://localhost:7088/sensor?count={count}");
+
+        if (sensorData == null || !sensorData.Any())
         {
-            DateCollected = dto.DateCollected,
-            TypeAfval = dto.TypeAfval,
-            WindRichting = dto.WindRichting,
-            Temperatuur = dto.Temperatuur,
-            WeerOmschrijving = dto.WeerOmschrijving,
-            Confidence = dto.Confidence,
-            CameraId = dto.CameraId
-        };
+            return BadRequest("Failed to fetch random data from sensor API");
+        }
 
-        var created = await _repo.AddAsync(trash);
-
-        var result = new TrashDTO
+        var results = new List<TrashDTO>();
+        foreach (var item in sensorData)
         {
-            Id = created.Id,
-            DateCollected = created.DateCollected,
-            DagCategorie = created.DagCategorie,
-            TypeAfval = created.TypeAfval,
-            WindRichting = created.WindRichting,
-            Temperatuur = created.Temperatuur,
-            WeerOmschrijving = created.WeerOmschrijving,
-            Confidence = created.Confidence,
-            CameraId = created.CameraId
-        };
+            var dateCollected = item.Tijd;
+            var dagCategorie = dateCollected.DayOfWeek switch
+            {
+                DayOfWeek.Saturday or DayOfWeek.Sunday => "Weekend",
+                _ => "Werkdag"
+            };
 
-        return CreatedAtAction(nameof(GetById), new { id = result.Id }, result);
+            var trash = new Trash
+            {
+                DateCollected = item.Tijd,
+                DagCategorie = dagCategorie,
+                TypeAfval = item.Type_afval,
+                WindRichting = item.Wind_richting,
+                Temperatuur = item.Temperatuur,
+                WeerOmschrijving = item.Weather_description,
+                Confidence = item.Confidence,
+                CameraId = 1
+            };
+
+            var created = await _repo.AddAsync(trash);
+
+            results.Add(new TrashDTO
+            {
+                Id = created.Id,
+                DateCollected = created.DateCollected,
+                DagCategorie = created.DagCategorie,
+                TypeAfval = created.TypeAfval,
+                WindRichting = created.WindRichting,
+                Temperatuur = created.Temperatuur,
+                WeerOmschrijving = created.WeerOmschrijving,
+                Confidence = created.Confidence,
+                CameraId = created.CameraId
+            });
+        }
+
+        return Ok(results);
     }
+
 }
+
 
