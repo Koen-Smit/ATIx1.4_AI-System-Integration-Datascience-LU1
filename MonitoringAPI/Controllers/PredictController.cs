@@ -18,8 +18,8 @@ public class PredictController : ControllerBase
     public PredictController(IHttpClientFactory httpClientFactory, IConfiguration configuration)
     {
         _httpClient = httpClientFactory.CreateClient();
-        //_predictionApiUrl = configuration["PredictionApi:BaseUrl"] ??
-        //    throw new InvalidOperationException("Prediction API URL not configured");
+        _predictionApiUrl = configuration["PredictionApi"] ??
+            throw new InvalidOperationException("Prediction API URL not configured");
     }
 
     [HttpPost]
