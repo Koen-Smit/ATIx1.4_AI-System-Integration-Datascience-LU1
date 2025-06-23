@@ -304,8 +304,8 @@ window.renderWeerChart = (temperatuurData, weerOmschrijvingen, labels) => {
     }
 };
 
-window.renderVoorspellingChart = (dataset, labels, colors, ) => {
-    console.log("renderChart voorspelling CALLED", { dataset, labels, colors });
+window.renderVoorspellingChart = (dataset, labels, colors, voorspellingTemperatuurList) => {
+    console.log("renderChart voorspelling CALLED", { dataset, labels, colors, voorspellingTemperatuurList});
 
     try {
         const ctx = document.getElementById('voorspellingChart')?.getContext('2d');
@@ -330,7 +330,17 @@ window.renderVoorspellingChart = (dataset, labels, colors, ) => {
                 data: dataset,
                 backgroundColor: colors,
                 borderColor: colors,
-                borderWidth: 1
+                borderWidth: 1,
+                order: 2
+            },
+            {
+                label: 'Temperatuur (°C)',
+                data: voorspellingTemperatuurList,
+                type: 'line',
+                borderColor: 'yellow',
+                backgroundColor: 'transparent',
+                yAxisID: 'y1',
+                order: 1
             }]
         };
 
@@ -360,6 +370,22 @@ window.renderVoorspellingChart = (dataset, labels, colors, ) => {
                     },
                     grid: {
                         color: 'rgba(0, 0, 0, 0.1)'
+                    }
+                },
+
+                y1: {
+                    beginAtZero: false,
+                    position: 'right',
+                    title: {
+                        display: true,
+                        text: 'Temperatuur (°C)',
+                        color: 'black'
+                    },
+                    ticks: {
+                        color: 'black'
+                    },
+                    grid: {
+                        drawOnChartArea: false
                     }
                 },
 
@@ -393,7 +419,7 @@ window.renderVoorspellingChart = (dataset, labels, colors, ) => {
                     ctx.fillRect(x, 0, 15, 15);
                     ctx.strokeStyle = '#000';
                     ctx.strokeRect(x, 0, 15, 15);
-
+                    
                     ctx.fillStyle = 'black';
                     ctx.fillText(item.text, x + 20, 18);
 

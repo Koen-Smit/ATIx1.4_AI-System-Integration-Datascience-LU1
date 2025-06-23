@@ -115,6 +115,7 @@
     private List<Trash> trashListToShow;
 
     private List<double> temperatuurList = new List<double>();
+    private List<double> voorspellingTemperatuurList = new List<double>();
     private bool isDataLoaded = false;
 
     private string dateText = "Trash history";
@@ -277,6 +278,9 @@
     }
     private async Task RenderPredictionChart()
     {
+        voorspellingTemperatuurList.Clear();
+
+
         PredictDatum1 = PredictDatum1.Date;
         PredictDatum2 = PredictDatum2.Date;
         // Determine the correct start and end dates (inclusive)
@@ -296,8 +300,78 @@
             //apicall to get predicted info
             // await JS.InvokeVoidAsync("console.log", currentDate);
 
+
+
+
+            //HIER EVEN TESTEN MET TESTDATA VOOR VERSCHILLENDE TEMPERATUREN :)
+
             predictionTrash[i] = await ApiClient.GetPredictedTrash(currentDate);
+
+
+            //HIER EVEN TESTEN MET TESTDATA VOOR VERSCHILLENDE TEMPERATUREN
+            // switch(i)
+            // {
+            //     case 0:
+            //         predictionTrash[0] = (new PredictedTrash { Date = DateTime.Parse("06/24/2025"), PredictedTemprature = 12.1, IsHoliday = false, PredictedWasteCount = 10});
+            //         break;
+            //     case 1:
+            //         predictionTrash[1] = (new PredictedTrash { Date = DateTime.Parse("06/25/2025"), PredictedTemprature = 14.1, IsHoliday = false, PredictedWasteCount = 10 });
+            //         break;
+            //     case 2:
+            //         predictionTrash[2] = (new PredictedTrash { Date = DateTime.Parse("06/26/2025"), PredictedTemprature = 11.1, IsHoliday = false, PredictedWasteCount = 10 });
+            //         break;
+            //     case 3:
+            //         predictionTrash[3] = (new PredictedTrash { Date = DateTime.Parse("06/27/2025"), PredictedTemprature = 18.8, IsHoliday = false, PredictedWasteCount = 10 });
+            //         break;
+            //     case 4:
+            //         predictionTrash[4] = (new PredictedTrash { Date = DateTime.Parse("06/28/2025"), PredictedTemprature = 10.0, IsHoliday = false, PredictedWasteCount = 10 });
+            //         break;
+            // }
         }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        //HIER MOET IK ZIJN
+        //HIER MOET IK ZIJN
+        //HIER MOET IK ZIJN
+        //HIER MOET IK ZIJN
+        //HIER MOET IK ZIJN
+        //HIER MOET IK ZIJN
+        //HIER MOET IK ZIJN
+        //HIER MOET IK ZIJN
+        //HIER MOET IK ZIJN
+        //HIER MOET IK ZIJN
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
         // await JS.InvokeVoidAsync("console.log", predictionTrash);
 
         string[] datesAsString = new string[predictionDates.Length];
@@ -321,8 +395,15 @@
 
         // = predictionDates.Select(d => d.ToString("dd/MM", CultureInfo.InvariantCulture)).ToArray();
 
+        foreach (PredictedTrash predictedTrash in predictionTrash)
+        {
+            voorspellingTemperatuurList.Add(predictedTrash.PredictedTemprature);
+            await JS.InvokeVoidAsync("console.log", $"TESTOP23-6-2025::: {Convert.ToString(predictedTrash.PredictedTemprature)}");
+        }
+
         await Task.Delay(100);
-        await JS.InvokeVoidAsync("renderVoorspellingChart", predictionTrashAmounts, datesAsString, colorArray); 
+        await JS.InvokeVoidAsync("console.log", $"temperatuurList.Count: {voorspellingTemperatuurList.Count}, labels: {datesAsString.Length}, dataset: {predictionTrashAmounts.Length}");
+        await JS.InvokeVoidAsync("renderVoorspellingChart", predictionTrashAmounts, datesAsString, colorArray, voorspellingTemperatuurList); 
 
 
 
