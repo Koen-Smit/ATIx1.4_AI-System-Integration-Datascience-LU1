@@ -1,0 +1,46 @@
+name: Deployment Fastapi To Azure Container App
+on: 
+  workflow_dispatch:
+  push:
+    branches: [Karim] 
+env:
+  AZURE_CONTAINER_REGISTRY: wastepredictionapi
+  CONTAINER_APP_NAME: wastepredictionapi
+  RESOURCE_GROUP: HiveSpace
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      
+name: 'Checkout'
+      uses: actions/checkout@v3
+
+      
+name: 'Login to Azure'
+      uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_FASTAPI_CREDENTIALS }}
+
+      
+name: 'Login to ACR'
+      uses: azure/docker-login@v1
+      with:
+        login-server: 'wastepredictionapi.azurecr.io'
+        username: 'wastepredictionapi'
+        password: 'Uuu60eYLWE576R8ps2+Zdo0oANxfOj4aAflJKlO9q2+ACRCiteZN'
+
+      
+name: 'Build and Push Docker image'
+      run: |
+        docker build -f ./TrashPredictionAPI/Docker/Dockerfile -t wastepredictionapi.azurecr.io/ai-service-v4:${{ github.sha }} ./FastAPI
+        docker push wastepredictionapi.azurecr.io/ai-service-v4:${{ github.sha }}
+
+      
+name: 'Install Azure Container Apps CLI Extension'
+      run: az extension add --name containerapp
+
+      
+name: 'Deploy to Azure Container App'
+      run: |
+        az containerapp update \--name wastepredictionapi \--resource-group HiveSpace \--image wastepredictionapi.azurecr.io/ai-service-v4:${{ github.sha }}
