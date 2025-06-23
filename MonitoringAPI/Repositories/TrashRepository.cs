@@ -34,8 +34,8 @@ public class TrashRepository : Repository<Trash>, ITrashRepository
 
     public new async Task<Trash> AddAsync(Trash trash)
     {
-        if (!string.IsNullOrWhiteSpace(trash.DagCategorie))
-            throw new ArgumentException("DagCategorie is determined automatically.");
+        //if (!string.IsNullOrWhiteSpace(trash.DagCategorie))
+        //    throw new ArgumentException("DagCategorie is determined automatically.");
 
         trash.DagCategorie = await DetermineDagCategorieAsync(trash.DateCollected);
 

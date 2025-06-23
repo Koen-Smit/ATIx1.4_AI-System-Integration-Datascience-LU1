@@ -2,7 +2,6 @@ using TrashDashboard.Components;
 using TrashDashboard.ApiClient;
 using TrashDashboard.Components.Layout;
 
-
 namespace TrashDashboard;
 
 public class Program

@@ -1,6 +1,7 @@
-window.renderAfvalChart = (data, labels, colors) => {
+
+window.renderAfvalChart = (data, labels, colors, temperatuurList) => {
     //console.log("Incoming colors:", colors);
-    console.log("renderAfvalChart CALLED", { data, labels, colors });
+    console.log("renderAfvalChart CALLED", { data, labels, colors, temperatuurList});
 
     try {
         const ctx = document.getElementById('afvalChart')?.getContext('2d');
@@ -14,24 +15,34 @@ window.renderAfvalChart = (data, labels, colors) => {
         }
 
         const customLegendLabels = [
-            { text: "Historisch afval", fillStyle: "blue" },
-            { text: "Voorspeld afval", fillStyle: "red" }
+            { text: "Hoge prioriteit", fillStyle: "#fa0003" },
+            { text: "Gemiddelde prioriteit", fillStyle: "#faa100" },
+            { text: "Lage prioriteit", fillStyle: "#c6f901" },
+            { text: "Geen prioriteit", fillStyle: "#02f812" },
+            //{ text: "holiday", fillStyle: "##f208b4" },
         ];
         console.log()
         window.afvalChartInstance = new Chart(ctx, {
             type: 'bar',
             data: {
                 labels: labels,
-                datasets: [{
-                    label: 'Voorspeld aantal stuks afval',
-                    data: data,
-                    backgroundColor: colors,
-                    borderColor: colors,
-                    color: colors,
-                    //'rgba(75, 192, 192, 0.7)'
-                    //borderColor: 'rgba(75, 192, 192, 1)',
-                    borderWidth: 1
-                }]
+                datasets: [
+                    {
+                        label: 'gevonden aantal stuks afval',
+                        data: data,
+                        backgroundColor: colors,
+                        borderColor: colors,
+                        borderWidth: 1,
+                        yAxisID: 'y'
+                    },
+                    {
+                        label: 'Temperatuur (°C)',
+                        data: temperatuurList,
+                        type: 'line',
+                        borderColor: 'yellow',
+                        backgroundColor: 'transparent',
+                        yAxisID: 'y1'
+                    }]
             },
             options: {
                 responsive: true,
@@ -53,7 +64,7 @@ window.renderAfvalChart = (data, labels, colors) => {
                     tooltip: {
                         callbacks: {
                             label: function (context) {
-                                return `Voorspeld afval: ${context.raw} stuks`;
+                                return `gevonden afval: ${context.raw} stuks`;
                             }
                         }
                     }
@@ -75,6 +86,19 @@ window.renderAfvalChart = (data, labels, colors) => {
                             color: 'rgba(0, 0, 0, 0.1)'
                         }
                     },
+
+                    y1: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Temperatuur (°C)',
+                            color: 'black'
+                        },
+                        ticks: {
+                            color: 'black'
+                        },
+                    },
+
                     x: {
                         title: {
                             display: true,
@@ -114,9 +138,9 @@ window.renderAfvalChart = (data, labels, colors) => {
 
                     legendItems.forEach(item => {
                         ctx.fillStyle = item.fillStyle;
-                        ctx.fillRect(x, 10, 15, 15);
+                        ctx.fillRect(x, 0, 15, 15);
                         ctx.strokeStyle = '#000';
-                        ctx.strokeRect(x, 10, 15, 15);
+                        ctx.strokeRect(x, 0, 15, 15);
 
                         ctx.fillStyle = 'black';
                         ctx.fillText(item.text, x + 20, 18);
@@ -218,6 +242,24 @@ window.renderWeerChart = (temperatuurData, weerOmschrijvingen, labels) => {
                             color: 'rgba(255, 255, 255, 0.1)'
                         }
                     },
+
+                    y1: {
+                        beginAtZero: false,
+                        position: 'right',
+                        title: {
+                            display: true,
+                            text: 'Temperatuur (°C)',
+                            color: 'black'
+                        },
+                        ticks: {
+                            color: 'black'
+                        },
+                        grid: {
+                            drawOnChartArea: false
+                        }
+                    },
+
+
                     x: {
                         ticks: {
                             color: 'black'
@@ -244,8 +286,8 @@ window.renderWeerChart = (temperatuurData, weerOmschrijvingen, labels) => {
                         ctx.fillStyle = item.fillStyle;
                         ctx.strokeStyle = item.strokeStyle;
                         ctx.lineWidth = item.lineWidth;
-                        ctx.fillRect(x, 10, 15, 15);
-                        ctx.strokeRect(x, 10, 15, 15);
+                        ctx.fillRect(x, 0, 15, 15);
+                        ctx.strokeRect(x, 0, 15, 15);
 
                         ctx.fillStyle = 'black';
                         ctx.fillText(item.text, x + 20, 18);
@@ -261,3 +303,114 @@ window.renderWeerChart = (temperatuurData, weerOmschrijvingen, labels) => {
         console.error('Error rendering weer chart:', error);
     }
 };
+
+window.renderVoorspellingChart = (dataset, labels, colors, ) => {
+    console.log("renderChart voorspelling CALLED", { dataset, labels, colors });
+
+    try {
+        const ctx = document.getElementById('voorspellingChart')?.getContext('2d');
+        if (!ctx) {
+            console.error('Canvas context not found!');
+            return;
+        }
+
+        if (window.voorspellingChartInstance instanceof Chart) {
+            window.voorspellingChartInstance.destroy();
+        }
+        const customLegendLabels = [
+            { text: "Normale dag", fillStyle: "#727272" },
+            { text: "Feestdag", fillStyle: "#000000" },
+            //{ text: "holiday", fillStyle: "##f208b4" },
+        ];
+
+        const data = {
+            labels: labels,
+            datasets: [{
+                label: 'Voorspeld aantal stuks afval',
+                data: dataset,
+                backgroundColor: colors,
+                borderColor: colors,
+                borderWidth: 1
+            }]
+        };
+
+        const options = {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    callbacks: {
+                        label: context => `Voorspeld afval: ${context.raw} stuks`
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: 'Aantal stuks afval',
+                        color: 'black'
+                    },
+                    ticks: {
+                        color: 'black',
+                        stepSize: 1,
+                        precision: 0
+                    },
+                    grid: {
+                        color: 'rgba(0, 0, 0, 0.1)'
+                    }
+                },
+
+                x: {
+                    title: {
+                        display: true,
+                        text: 'Datum',
+                        color: 'black'
+                    },
+                    ticks: { color: 'black' },
+                    grid: { display: false }
+                }
+            }
+        };
+        const plugins = [{
+            id: 'customLegend',
+            afterDraw(chart) {
+                const ctx = chart.ctx;
+                const legendItems = customLegendLabels;
+                if (!legendItems) return;
+
+                const legendX = chart.width / 2 - (legendItems.length * 100) / 2;
+                let x = legendX;
+
+                ctx.font = '12px Arial';
+                ctx.textAlign = 'left';
+                ctx.textBaseline = 'middle';
+
+                legendItems.forEach(item => {
+                    ctx.fillStyle = item.fillStyle;
+                    ctx.fillRect(x, 0, 15, 15);
+                    ctx.strokeStyle = '#000';
+                    ctx.strokeRect(x, 0, 15, 15);
+
+                    ctx.fillStyle = 'black';
+                    ctx.fillText(item.text, x + 20, 18);
+
+                    x += 120;
+                });
+            }
+        }];
+        window.voorspellingChartInstance = new Chart(ctx, {
+            type: 'bar',
+            data: data,
+            options: options,
+            plugins: plugins
+        });
+
+        console.log('Voorspelling chart rendered successfully.');
+
+    } catch (error) {
+        console.error('Error rendering voorspelling chart:', error);
+    }
+}; 
