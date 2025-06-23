@@ -1,7 +1,7 @@
 
-window.renderAfvalChart = (data, labels, colors) => {
+window.renderAfvalChart = (data, labels, colors, temperatuurList) => {
     //console.log("Incoming colors:", colors);
-    console.log("renderAfvalChart CALLED", { data, labels, colors });
+    console.log("renderAfvalChart CALLED", { data, labels, colors, temperatuurList});
 
     try {
         const ctx = document.getElementById('afvalChart')?.getContext('2d');
@@ -15,10 +15,10 @@ window.renderAfvalChart = (data, labels, colors) => {
         }
 
         const customLegendLabels = [
-            { text: "High Priority", fillStyle: "#fa0003" },
-            { text: "medium Priority", fillStyle: "#faa100" },
-            { text: "low Priority", fillStyle: "#c6f901" },
-            { text: "no Priority", fillStyle: "#02f812" },
+            { text: "Hoge prioriteit", fillStyle: "#fa0003" },
+            { text: "Gemiddelde prioriteit", fillStyle: "#faa100" },
+            { text: "Lage prioriteit", fillStyle: "#c6f901" },
+            { text: "Geen prioriteit", fillStyle: "#02f812" },
             //{ text: "holiday", fillStyle: "##f208b4" },
         ];
         console.log()
@@ -26,16 +26,23 @@ window.renderAfvalChart = (data, labels, colors) => {
             type: 'bar',
             data: {
                 labels: labels,
-                datasets: [{
-                    label: 'gevonden aantal stuks afval',
-                    data: data,
-                    backgroundColor: colors,
-                    borderColor: colors,
-                    color: colors,
-                    //'rgba(75, 192, 192, 0.7)'
-                    //borderColor: 'rgba(75, 192, 192, 1)',
-                    borderWidth: 1
-                }]
+                datasets: [
+                    {
+                        label: 'gevonden aantal stuks afval',
+                        data: data,
+                        backgroundColor: colors,
+                        borderColor: colors,
+                        borderWidth: 1,
+                        yAxisID: 'y'
+                    },
+                    {
+                        label: 'Temperatuur (°C)',
+                        data: temperatuurList,
+                        type: 'line',
+                        borderColor: 'yellow',
+                        backgroundColor: 'transparent',
+                        yAxisID: 'y1'
+                    }]
             },
             options: {
                 responsive: true,
@@ -79,6 +86,19 @@ window.renderAfvalChart = (data, labels, colors) => {
                             color: 'rgba(0, 0, 0, 0.1)'
                         }
                     },
+
+                    y1: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Temperatuur (°C)',
+                            color: 'black'
+                        },
+                        ticks: {
+                            color: 'black'
+                        },
+                    },
+
                     x: {
                         title: {
                             display: true,
@@ -222,6 +242,24 @@ window.renderWeerChart = (temperatuurData, weerOmschrijvingen, labels) => {
                             color: 'rgba(255, 255, 255, 0.1)'
                         }
                     },
+
+                    y1: {
+                        beginAtZero: false,
+                        position: 'right',
+                        title: {
+                            display: true,
+                            text: 'Temperatuur (°C)',
+                            color: 'black'
+                        },
+                        ticks: {
+                            color: 'black'
+                        },
+                        grid: {
+                            drawOnChartArea: false
+                        }
+                    },
+
+
                     x: {
                         ticks: {
                             color: 'black'
@@ -266,7 +304,7 @@ window.renderWeerChart = (temperatuurData, weerOmschrijvingen, labels) => {
     }
 };
 
-window.renderVoorspellingChart = (dataset, labels, colors) => {
+window.renderVoorspellingChart = (dataset, labels, colors, ) => {
     console.log("renderChart voorspelling CALLED", { dataset, labels, colors });
 
     try {
@@ -280,8 +318,8 @@ window.renderVoorspellingChart = (dataset, labels, colors) => {
             window.voorspellingChartInstance.destroy();
         }
         const customLegendLabels = [
-            { text: "normal", fillStyle: "#727272" },
-            { text: "holiday", fillStyle: "#000000" },
+            { text: "Normale dag", fillStyle: "#727272" },
+            { text: "Feestdag", fillStyle: "#000000" },
             //{ text: "holiday", fillStyle: "##f208b4" },
         ];
 
@@ -324,6 +362,7 @@ window.renderVoorspellingChart = (dataset, labels, colors) => {
                         color: 'rgba(0, 0, 0, 0.1)'
                     }
                 },
+
                 x: {
                     title: {
                         display: true,

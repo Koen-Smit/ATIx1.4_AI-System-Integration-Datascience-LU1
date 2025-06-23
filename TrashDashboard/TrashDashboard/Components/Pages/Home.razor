@@ -9,7 +9,8 @@
 <PageTitle>Home</PageTitle>
 
 <div class="position-relative mb-5 text-center">
-    <span>Laatste update @mostRecentDate</span>
+    <span>Laatste detectie @mostRecentDate</span>
+    <button type="button" @onclick="GoTable" class="btn btn-secondary position-absolute top-0 start-0">Historie</button>
     <button type="button" class="btn btn-secondary position-absolute top-0 end-0" @onclick="Logout">Uitloggen</button>
 </div>
 
@@ -68,7 +69,7 @@
             </div>
 
             <div class="mt-3 d-flex justify-content-center">
-                <button class="btn color-light btn-light px-4" @onclick="ShowVoorspelling">Toon voorspelling</button>
+                <button class="btn color-light btn-light px-4" @onclick="ShowVoorspelling">Toon</button>
             </div>
 
             <div class="chart-container mt-3">
@@ -104,13 +105,6 @@
 
         <!-- Right Section - Weather and Map -->
         <div class="col-md-6 custom-right d-flex flex-column p-3 p-md-4">
-            <div class="order-md-1">
-                <h3 class="color-light text-center text-md-start">Weeroverzicht</h3>
-                <div class="weather-chart-container">
-                    <canvas id="weerChart"></canvas>
-                </div>
-            </div>
-
             <div class="order-md-3 mt-3 mt-md-5">
                 <h3 class="color-light text-center text-md-start">Kaart van Breda</h3>
                 <div class="map-container mt-2">
@@ -124,11 +118,15 @@
 
 </div>
 
+@* var dateLabels = weekDates.Select(d => d.ToString("dd/MM")).ToArray(); *@
 
 
 @code {
     private List<Trash> trashList;
     private List<Trash> trashListToShow;
+
+    private List<double> temperatuurList = new List<double>();
+    private bool isDataLoaded = false;
 
     private string dateText = "Trash history";
 
@@ -150,6 +148,8 @@
     private int[] afvalPerWeek = new int[7];
     private DateTime[] weekDates = new DateTime[7];
 
+    public string test;
+
     protected override async Task OnInitializedAsync()
     {
         Console.WriteLine("Initializing...");
@@ -161,6 +161,26 @@
 
         trashList = await ApiClient.GetAllTrash();
         Console.WriteLine($"Trash list count: {trashList?.Count}");
+
+
+
+
+
+        // foreach (Trash trashData in trashList)
+        // {
+        //     temperatuurList.Add(trashData.Temperatuur);
+
+        // }
+
+
+
+
+
+
+
+        test = Convert.ToString(temperatuurList.Count);
+
+
 
         mostRecentDate = GetMostRecentTrashDate();
 
@@ -226,6 +246,7 @@
         await MapLoaded(51.591737f, 4.779559f, "Camera1");
         var dateLabels = weekDates.Select(d => d.ToString("dd/MM")).ToArray();
 
+        isDataLoaded = true;
     }
 
     private DateTime _predictDatum1 = DateTime.Now.AddDays(1);
@@ -239,10 +260,10 @@
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (firstRender)
+        if (firstRender && isDataLoaded)
         {
             var dateLabels = weekDates.Select(d => d.ToString("dd/MM", CultureInfo.InvariantCulture)).ToArray();
-            await JS.InvokeVoidAsync("renderAfvalChart", afvalPerWeek, dateLabels);
+            await JS.InvokeVoidAsync("renderAfvalChart", afvalPerWeek, dateLabels, colorArray, temperatuurList);
 
 
             await Task.Delay(100);
@@ -255,9 +276,11 @@
                     weatherData.WeerOmschrijvingen,
                     weatherData.Dates);
             }
-            await JS.InvokeVoidAsync("renderAfvalChart", afvalPerWeek, dateLabels);
+            await Task.Delay(100);
+            await JS.InvokeVoidAsync("renderAfvalChart", afvalPerWeek, dateLabels, temperatuurList);
         }
-        await JS.InvokeVoidAsync("console.log", "HEEELPPP 222", afvalPerWeek);
+        await Task.Delay(100);
+        await JS.InvokeVoidAsync("console.log", "HEEELPPP 222", afvalPerWeek, temperatuurList);
         await ShowVoorspelling();
 
 
@@ -304,7 +327,17 @@
                 colorArray[i] = "#727272";
             }
         }
-        await JS.InvokeVoidAsync("renderVoorspellingChart", predictionTrashAmounts, datesAsString, colorArray);
+
+        // await JS.InvokeVoidAsync("console.log", predictionDates, colorArray, predictionTrash);
+
+        // = predictionDates.Select(d => d.ToString("dd/MM", CultureInfo.InvariantCulture)).ToArray();
+
+        await Task.Delay(100);
+        await JS.InvokeVoidAsync("renderVoorspellingChart", predictionTrashAmounts, datesAsString, colorArray); 
+
+
+
+
     }
 
     private async Task OnDateChanged(ChangeEventArgs e)
@@ -344,24 +377,56 @@
             .Where(t => t.DateCollected >= Datum && t.DateCollected < Datum.AddDays(7))
             .Where(t => t.Temperatuur >= MinTemperatuur)
             .ToList();
+
         var colors = new string[7];
+
+        for (int i = 0; i < 7; i++)
+        {
+            weekDates[i] = Datum.AddDays(i);
+        }
+
+        temperatuurList.Clear();
+
+        for (int i = 0; i < weekDates.Length; i++)
+        {
+            DateTime huidigeDatum = weekDates[i];
+            List<double> temperaturenOpDieDag = new List<double>();
+
+            for (int j = 0; j < trashList.Count; j++)
+            {
+                Trash item = trashList[j];
+                if (item.DateCollected.Date == huidigeDatum.Date)
+                {
+                    temperaturenOpDieDag.Add(item.Temperatuur);
+                }
+            }
+
+            double gemiddeldeTemp = 0;
+            if (temperaturenOpDieDag.Count > 0)
+            {
+                double totaal = 0;
+                for (int k = 0; k < temperaturenOpDieDag.Count; k++)
+                {
+                    totaal += temperaturenOpDieDag[k];
+                }
+                gemiddeldeTemp = totaal / temperaturenOpDieDag.Count;
+            }
+
+            temperatuurList.Add(gemiddeldeTemp);
+        }
+
 
         if (filteredTrash != null && filteredTrash.Any())
         {
-            var dailyData = filteredTrash
-                .GroupBy(t => t.DateCollected.Date)
-                .OrderBy(g => g.Key)
-                .Take(7)
-                .ToList();
-
             for (int i = 0; i < 7; i++)
             {
-                var currentDate = Datum.AddDays(i);
-                weekDates[i] = currentDate;
-
-                List<Trash> dayData = trashListToShow
+                var currentDate = weekDates[i];
+                @* List<Trash> dayData = trashListToShow
                 .Where(t => t.DateCollected.Date == currentDate)
-                .ToList();
+                .ToList(); *@
+                var dayData = trashListToShow
+                    .Where(t => t.DateCollected.Date == currentDate)
+                    .ToList();
 
                 int count = dayData.Count;
                 afvalPerWeek[i] = count;
@@ -415,12 +480,13 @@
         }
 
         var dateLabels = weekDates.Select(d => d.ToString("dd/MM")).ToArray();
-        await JS.InvokeVoidAsync("renderAfvalChart", afvalPerWeek, dateLabels, colors);
-        await JS.InvokeVoidAsync("console.log", afvalPerWeek, dateLabels, colors);
+        dateText = Datum > DateTime.Now ? "Predicted Trash" : "Trash History";
+        await JS.InvokeVoidAsync("renderAfvalChart", afvalPerWeek, dateLabels, colors, temperatuurList);
+        await JS.InvokeVoidAsync("console.log", afvalPerWeek, dateLabels, colors, temperatuurList);
 
         dateText = Datum > DateTime.Now ? "Predicted Trash" : "Trash History";
-
     }
+
 
 
     private RealTimeMap _map;
@@ -450,7 +516,7 @@
 
         await _map.Geometric.Points.add(point);
     }
-
+     
     private DateTime? GetMostRecentTrashDate()
     {
         if (trashList == null || !trashList.Any())
@@ -480,5 +546,10 @@
         {
             NavigationManager.NavigateTo("/login");
         }
+    }
+
+    private void GoTable()
+    {
+        NavigationManager.NavigateTo("/table");
     }
 }

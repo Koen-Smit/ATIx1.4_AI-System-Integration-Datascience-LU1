@@ -1,0 +1,132 @@
+@page "/table"
+@rendermode InteractiveServer
+@inject ApiClient ApiClient
+@inject Authorization Authorization
+@inject NavigationManager NavigationManager
+
+<button @onclick="GoHome" class="btn btn-secondary mb-3">← Terug naar dashboard</button>
+
+<h3 class="mb-4">Afvalhistoriek</h3>
+
+<div class="mb-4">
+    <div class="row g-3 align-items-center">
+        <div class="col-auto">
+            <label for="countInput" class="col-form-label">Aantal items aanmaken (1-20):</label>
+        </div>
+        <div class="col-auto">
+            <input type="number" id="countInput" class="form-control" @bind="itemCount" min="1" max="20" />
+        </div>
+        <div class="col-auto">
+            <button @onclick="CreateRandomData" class="btn btn-primary">Genereer Data</button>
+        </div>
+        <div class="col-auto">
+            @if (!string.IsNullOrEmpty(errorMessage))
+            {
+                <div class="alert alert-danger">@errorMessage</div>
+            }
+            @if (!string.IsNullOrEmpty(successMessage))
+            {
+                <div class="alert alert-success">@successMessage</div>
+            }
+        </div>
+    </div>
+</div>
+
+@if (trashList == null)
+{
+    <p>Gegevens worden geladen...</p>
+}
+else
+{
+    <div style="margin: 50px;">
+        <table class="table table-bordered table-striped">
+            <thead class="table-light">
+                <tr>
+                    <th>Datum</th>
+                    <th>Dagcategorie</th>
+                    <th>Type afval</th>
+                    <th>Temperatuur (°C)</th>
+                    <th>Windrichting</th>
+                    <th>Weeromschrijving</th>
+                    <th>Confidence</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var trash in trashList)
+                {
+                    <tr>
+                        <td>@trash.DateCollected.ToString("dd-MM-yyyy")</td>
+                        <td>@trash.DagCategorie</td>
+                        <td>@trash.TypeAfval</td>
+                        <td>@trash.Temperatuur</td>
+                        <td>@trash.WindRichting</td>
+                        <td>@trash.WeerOmschrijving</td>
+                        <td>@trash.Confidence</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
+
+@code {
+    private List<Trash>? trashList;
+    private int itemCount = 1;
+    private string errorMessage = string.Empty;
+    private string successMessage = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (!Authorization.IsLoggedIn())
+        {
+            NavigationManager.NavigateTo("/login");
+            return;
+        }
+
+        await LoadData();
+    }
+
+    private async Task LoadData()
+    {
+        trashList = await ApiClient.GetAllTrash();
+    }
+
+    private async Task CreateRandomData()
+    {
+        errorMessage = string.Empty;
+        successMessage = string.Empty;
+
+        // Validate input
+        if (itemCount < 1 || itemCount > 20)
+        {
+            errorMessage = "Voer een getal tussen 1 en 20 in";
+            return;
+        }
+
+        try
+        {
+            // Make the POST request to create sensoring data
+            var response = await ApiClient.CreateRandomTrash(itemCount);
+
+            if (response != null && response.Any())
+            {
+                successMessage = $"{response.Count} nieuwe items succesvol aangemaakt!";
+                // Refresh the data
+                await LoadData();
+            }
+            else
+            {
+                errorMessage = "Er is iets misgegaan bij het aanmaken van de data";
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Fout: {ex.Message}";
+        }
+    }
+
+    private void GoHome()
+    {
+        NavigationManager.NavigateTo("/");
+    }
+}

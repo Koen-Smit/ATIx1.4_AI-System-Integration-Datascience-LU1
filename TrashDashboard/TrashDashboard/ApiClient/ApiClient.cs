@@ -1,4 +1,5 @@
-﻿using System.Net.Http.Headers;
+﻿using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
 using TrashDashboard.Models;
@@ -114,7 +115,32 @@ namespace TrashDashboard.ApiClient
                 return new PredictedTrash();
             }
         }
+        public async Task<List<Trash>> CreateRandomTrash(int count)
+        {
+            httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", authorization.Token);
 
+            try
+            {
+                string url = $"{apiBaseUrl}/trash?count={count}";
+
+                var content = new StringContent("{}", Encoding.UTF8, "application/json");
+                HttpResponseMessage response = await httpClient.PostAsync(url, content);
+                response.EnsureSuccessStatusCode();
+
+                string responseBody = await response.Content.ReadAsStringAsync();
+                List<Trash> result = JsonSerializer.Deserialize<List<Trash>>(responseBody, new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true
+                });
+
+                return result ?? new List<Trash>();
+            }
+            catch (HttpRequestException e)
+            {
+                Console.WriteLine($"Request error: {e.Message}");
+                return new List<Trash>();
+            }
+        }
 
 
     }
