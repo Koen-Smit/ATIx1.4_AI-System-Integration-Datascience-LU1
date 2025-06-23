@@ -31,7 +31,7 @@ jobs:
 
       - name: 'Build and Push Docker image'
         run: |
-          docker build -f ./TrashPredictionAPI/Docker/Dockerfile -t wastepredictionapi.azurecr.io/ai-service-v4:${{ github.sha }} ./FastAPI
+          docker build -f ./TrashPredictionAPI/Docker/Dockerfile -t wastepredictionapi.azurecr.io/ai-service-v4:${{ github.sha }} ./TrashPredictionAPI/Docker/Dockerfile
           docker push wastepredictionapi.azurecr.io/ai-service-v4:${{ github.sha }}
 
       - name: 'Install Azure Container Apps CLI Extension'
