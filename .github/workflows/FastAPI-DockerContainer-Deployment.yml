@@ -3,7 +3,7 @@ name: Deployment Fastapi To Azure Container App
 on: 
   workflow_dispatch:
   push:
-    branches: [Karim] 
+    branches: [Karim, main] 
 
 env:
   AZURE_CONTAINER_REGISTRY: wastepredictionapi
